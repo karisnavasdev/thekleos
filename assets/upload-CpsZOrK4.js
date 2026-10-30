@@ -1,0 +1,1 @@
+async function e(e,t=`token`){let n=new FormData;n.append(`file`,e),n.append(`kind`,t);let r=await fetch(`/api/upload`,{method:`POST`,body:n}),i=await r.json().catch(()=>null);if(!r.ok||!i?.url)throw Error(i?.error||`Image upload failed (${r.status}).`);return i.url}var t=[`image/png`,`image/jpeg`,`image/gif`,`image/webp`],n=4194304;export{n,e as r,t};

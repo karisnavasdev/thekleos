@@ -1,0 +1,2203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script>if (location.search.includes("embed=1")) document.documentElement.classList.add("embed");</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark light">
+<title>Elysium Bridge</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%231d4552'/%3E%3Cg fill='none' stroke='%23cfe9f2' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 13.5l7-4 7 4'/%3E%3Cpath d='M9 18l7-4 7 4'/%3E%3Cpath d='M9 22.5l7-4 7 4'/%3E%3C/g%3E%3C/svg%3E">
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0a0d11; --glow1: rgba(94, 224, 200, .10); --glow2: rgba(96, 130, 240, .09);
+    --card: #11151b; --card-line: #1f262f;
+    --panel: #171c23; --panel-line: #232b35; --panel-hover: #1c222a;
+    --text: #edf1f5; --muted: #8d97a5; --faint: #5d6774;
+    --accent: #5ee0c8; --accent-hover: #7ce9d5; --accent-ink: #04241e; --accent-soft: rgba(94, 224, 200, .12);
+    --ok: #48c78e; --ok-soft: rgba(72, 199, 142, .13);
+    --warn: #f2b14c; --warn-soft: rgba(242, 177, 76, .13);
+    --bad: #f07067; --bad-soft: rgba(240, 112, 103, .13);
+    --shadow: 0 24px 64px rgba(0, 0, 0, .5), 0 2px 8px rgba(0, 0, 0, .3);
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) {
+      color-scheme: light;
+      --bg: #f2f4f7; --glow1: rgba(14, 159, 137, .10); --glow2: rgba(80, 110, 230, .07);
+      --card: #ffffff; --card-line: #e3e7ed;
+      --panel: #f4f6f9; --panel-line: #e5e9ef; --panel-hover: #edf0f4;
+      --text: #121820; --muted: #5f6b7a; --faint: #9aa4b1;
+      --accent: #0e9f89; --accent-hover: #0b8a77; --accent-ink: #ffffff; --accent-soft: rgba(14, 159, 137, .10);
+      --ok: #1d8a5a; --ok-soft: rgba(29, 138, 90, .10);
+      --warn: #b7791f; --warn-soft: rgba(183, 121, 31, .10);
+      --bad: #c8392f; --bad-soft: rgba(200, 57, 47, .09);
+      --shadow: 0 24px 60px rgba(20, 30, 45, .10), 0 2px 6px rgba(20, 30, 45, .06);
+    }
+  }
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --bg: #f2f4f7; --glow1: rgba(14, 159, 137, .10); --glow2: rgba(80, 110, 230, .07);
+    --card: #ffffff; --card-line: #e3e7ed;
+    --panel: #f4f6f9; --panel-line: #e5e9ef; --panel-hover: #edf0f4;
+    --text: #121820; --muted: #5f6b7a; --faint: #9aa4b1;
+    --accent: #0e9f89; --accent-hover: #0b8a77; --accent-ink: #ffffff; --accent-soft: rgba(14, 159, 137, .10);
+    --ok: #1d8a5a; --ok-soft: rgba(29, 138, 90, .10);
+    --warn: #b7791f; --warn-soft: rgba(183, 121, 31, .10);
+    --bad: #c8392f; --bad-soft: rgba(200, 57, 47, .09);
+    --shadow: 0 24px 60px rgba(20, 30, 45, .10), 0 2px 6px rgba(20, 30, 45, .06);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    min-height: 100vh; color: var(--text); background: var(--bg);
+    background-image: radial-gradient(900px 500px at 15% -10%, var(--glow1), transparent 60%),
+                      radial-gradient(800px 500px at 90% 0%, var(--glow2), transparent 60%);
+    background-attachment: fixed;
+    font: 15px/1.45 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+  button:disabled { cursor: not-allowed; }
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+  .num { font-variant-numeric: tabular-nums; }
+  .mono { font-family: var(--mono); font-size: 12.5px; }
+  .ic { width: 16px; height: 16px; flex: none; }
+  [hidden] { display: none !important; }
+
+  /* nav */
+  html.embed .nav { display: none; }
+  .nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 24px; max-width: 1120px; margin: 0 auto; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 650; font-size: 16px; letter-spacing: -.01em; text-decoration: none; }
+  .brand .ic { width: 28px; height: 28px; }
+  .brand span b { color: var(--muted); font-weight: 500; }
+  .nav-right { display: flex; align-items: center; gap: 8px; position: relative; }
+  .icon-btn { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 12px; border: 1px solid var(--card-line); background: var(--card); color: var(--muted); transition: color .15s, border-color .15s; }
+  .icon-btn:hover { color: var(--text); border-color: var(--panel-line); }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 38px; padding: 0 14px; border-radius: 12px; font-weight: 600; font-size: 14px; transition: background .15s, border-color .15s, transform .1s; }
+  .btn:active:not(:disabled) { transform: scale(.98); }
+  .btn-accent { background: var(--accent); color: var(--accent-ink); }
+  .btn-accent:hover { background: var(--accent-hover); }
+  .btn-ghost { border: 1px solid var(--card-line); background: var(--card); }
+  .btn-ghost:hover { border-color: var(--panel-line); background: var(--panel); }
+  .btn-bad { background: var(--bad-soft); color: var(--bad); }
+  .wallet-pill .avatar { width: 20px; height: 20px; border-radius: 50%; }
+  .menu { position: absolute; right: 0; top: 46px; width: 260px; background: var(--card); border: 1px solid var(--card-line); border-radius: 16px; box-shadow: var(--shadow); padding: 8px; z-index: 20; animation: pop .14s ease-out; }
+  .menu-head { padding: 10px 10px 12px; border-bottom: 1px solid var(--card-line); margin-bottom: 6px; }
+  .menu-head .muted { font-size: 12px; }
+  .menu-head b { font-size: 18px; }
+  .menu button, .menu a { display: flex; width: 100%; align-items: center; gap: 10px; padding: 10px; border-radius: 10px; text-decoration: none; font-size: 14px; color: var(--text); }
+  .menu button:hover, .menu a:hover { background: var(--panel); }
+  .menu .danger { color: var(--bad); }
+
+  .notice { display: flex; justify-content: center; padding: 0 16px; }
+  .notice div { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center; font-size: 13px; color: var(--muted); background: var(--warn-soft); border: 1px solid color-mix(in srgb, var(--warn) 30%, transparent); padding: 6px 12px; border-radius: 999px; text-align: center; }
+  .notice .ic { color: var(--warn); width: 14px; height: 14px; }
+  .notice .short { display: none; }
+  .link { color: var(--text); text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--faint); }
+  .link:hover { text-decoration-color: var(--text); }
+
+  /* layout */
+  main { padding: 20px 16px 72px; display: flex; flex-direction: column; align-items: center; }
+  .tabs { display: inline-flex; gap: 4px; padding: 4px; border-radius: 14px; background: var(--card); border: 1px solid var(--card-line); margin-bottom: 14px; }
+  /* In above out, the same width. */
+  .tvls { display: grid; gap: 6px; margin-bottom: 14px; }
+  .tvls:not(:has(.tvl:not([hidden]))) { display: none; }
+  .tvl { display: inline-flex; align-items: center; flex-wrap: wrap; justify-content: center; gap: 8px; padding: 7px 14px; border-radius: 999px; background: var(--card); border: 1px solid var(--card-line); font-size: 13px; color: var(--muted); }
+  .tvl[hidden] { display: none; }
+  .tvl b { color: var(--text); font-size: 15px; font-weight: 700; }
+  .tvl-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+  .tvl-usd { color: var(--accent); font-weight: 600; }
+  .tvl-count { color: var(--faint); }
+  @media (max-width: 480px) { .tvl-count { display: none; } }
+  .tab { height: 34px; padding: 0 16px; border-radius: 10px; font-weight: 600; font-size: 14px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; transition: background .15s, color .15s; }
+  .tab:hover { color: var(--text); }
+  .tab.active { background: var(--panel); color: var(--text); }
+  .count { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--accent); color: var(--accent-ink); font-size: 11px; display: inline-grid; place-items: center; }
+  .card { width: 100%; max-width: 460px; background: var(--card); border: 1px solid var(--card-line); border-radius: 24px; box-shadow: var(--shadow); padding: 16px; animation: rise .25s ease-out; }
+  .card-head { display: flex; align-items: center; justify-content: space-between; padding: 4px 4px 12px; }
+  .card-head h1 { font-size: 18px; margin: 0; letter-spacing: -.01em; }
+  .status { display: inline-flex; align-items: center; gap: 7px; height: 30px; padding: 0 11px; border-radius: 999px; font-size: 12.5px; font-weight: 600; background: var(--panel); color: var(--muted); border: 1px solid var(--panel-line); transition: border-color .15s; }
+  .status:hover { border-color: var(--faint); }
+  .status .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--faint); }
+  .status.ok { color: var(--ok); } .status.ok .dot { background: var(--ok); box-shadow: 0 0 0 3px var(--ok-soft); }
+  .status.bad { color: var(--bad); } .status.bad .dot { background: var(--bad); box-shadow: 0 0 0 3px var(--bad-soft); }
+
+  /* panels */
+  .panel { background: var(--panel); border: 1px solid var(--panel-line); border-radius: 18px; padding: 14px 16px; transition: border-color .15s; }
+  .panel:focus-within { border-color: color-mix(in srgb, var(--accent) 45%, var(--panel-line)); }
+  .panel-top, .panel-bottom { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--muted); }
+  .chain { display: inline-flex; align-items: center; gap: 7px; color: var(--text); font-weight: 600; font-size: 14px; }
+  .chain .ic { width: 20px; height: 20px; }
+  .tag { font-size: 11px; font-weight: 600; color: var(--warn); background: var(--warn-soft); padding: 2px 7px; border-radius: 6px; }
+  .amount-row { display: flex; align-items: center; gap: 12px; margin: 10px 0 8px; }
+  .amount { flex: 1; min-width: 0; font-size: 34px; font-weight: 600; letter-spacing: -.02em; background: none; border: 0; outline: none; color: var(--text); padding: 0; font-variant-numeric: tabular-nums; }
+  .amount::placeholder { color: var(--faint); }
+  .amount.sm { font-size: 26px; } .amount.xs { font-size: 20px; }
+  div.amount { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  div.amount.empty { color: var(--faint); }
+  .token { display: inline-flex; align-items: center; gap: 7px; height: 38px; padding: 0 12px 0 6px; border-radius: 999px; background: var(--card); border: 1px solid var(--panel-line); font-weight: 650; flex: none; }
+  .token .ic { width: 26px; height: 26px; }
+  .chips { display: inline-flex; gap: 4px; margin-left: 6px; }
+  .chip { height: 22px; padding: 0 7px; border-radius: 6px; font-size: 11.5px; font-weight: 650; color: var(--accent); background: var(--accent-soft); transition: filter .15s; }
+  .chip:hover:not(:disabled) { filter: brightness(1.15); }
+  .chip:disabled { opacity: .4; }
+  .src { margin-left: 6px; height: 20px; padding: 0 6px; border-radius: 6px; font-size: 11px; font-weight: 600; color: var(--muted); background: var(--card); border: 1px solid var(--panel-line); vertical-align: 1px; }
+  .src:hover { color: var(--text); }
+  .src.bad { color: var(--bad); background: var(--bad-soft); border-color: transparent; }
+  .flip-wrap { display: flex; justify-content: center; height: 8px; position: relative; z-index: 2; }
+  .flip { position: absolute; top: -14px; width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; background: var(--panel); border: 4px solid var(--card); color: var(--muted); }
+  .flip:hover { color: var(--text); }
+  .flip.up svg { transform: rotate(180deg); }
+
+  /* details */
+  .details { margin: 12px 2px 14px; display: grid; gap: 9px; font-size: 13.5px; }
+  .drow { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .drow > span:first-child { color: var(--muted); display: inline-flex; align-items: center; gap: 7px; }
+  .drow > span:first-child .ic { width: 15px; height: 15px; color: var(--faint); }
+  .drow > span:last-child { text-align: right; }
+  .free { color: var(--ok); font-weight: 600; }
+  .sub { color: var(--muted); }
+
+  /* cta */
+  .cta { width: 100%; height: 56px; border-radius: 16px; font-size: 16px; font-weight: 650; display: flex; align-items: center; justify-content: center; gap: 10px; background: var(--accent); color: var(--accent-ink); transition: background .15s, transform .1s, opacity .15s; }
+  .cta:hover:not(:disabled) { background: var(--accent-hover); }
+  .cta:active:not(:disabled) { transform: scale(.99); }
+  .cta:disabled { background: var(--panel); color: var(--muted); border: 1px solid var(--panel-line); }
+  .cta.bad:disabled { background: var(--bad-soft); color: var(--bad); border-color: transparent; }
+  .fine { margin: 10px 4px 2px; font-size: 12px; color: var(--faint); text-align: center; }
+  .fine.bad { color: var(--bad); }
+  .fine.warn { color: var(--warn); }
+  .spin { width: 18px; height: 18px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: spin .7s linear infinite; flex: none; }
+
+  /* activity */
+  .track { display: flex; gap: 8px; margin-bottom: 12px; }
+  .field { flex: 1; min-width: 0; height: 42px; padding: 0 12px; border-radius: 12px; border: 1px solid var(--panel-line); background: var(--panel); color: var(--text); font: 13px var(--mono); outline: none; }
+  .field:focus { border-color: color-mix(in srgb, var(--accent) 45%, var(--panel-line)); }
+  .field::placeholder { font-family: inherit; color: var(--faint); }
+  .empty-state { text-align: center; padding: 36px 16px 28px; color: var(--muted); }
+  .empty-state .ic { width: 40px; height: 40px; color: var(--faint); margin-bottom: 8px; }
+  .empty-state b { display: block; color: var(--text); font-size: 15px; margin-bottom: 4px; }
+  .dep { background: var(--panel); border: 1px solid var(--panel-line); border-radius: 16px; padding: 14px; margin-bottom: 10px; animation: rise .2s ease-out; }
+  .dep-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .dep-amt { display: flex; align-items: center; gap: 10px; font-weight: 650; font-size: 16px; }
+  .dep-amt .ic { width: 28px; height: 28px; }
+  .dep-amt small { display: block; font-weight: 500; font-size: 12px; color: var(--muted); }
+  .badge { font-size: 12px; font-weight: 650; padding: 4px 9px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .badge.ok { color: var(--ok); background: var(--ok-soft); }
+  .badge.wait { color: var(--warn); background: var(--warn-soft); }
+  .badge.bad { color: var(--bad); background: var(--bad-soft); }
+  .badge .spin { width: 10px; height: 10px; border-width: 1.5px; }
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 14px 0 10px; }
+  .step { font-size: 11.5px; color: var(--faint); }
+  .step i { display: block; height: 4px; border-radius: 2px; background: var(--panel-line); margin-bottom: 6px; overflow: hidden; position: relative; }
+  .step.done { color: var(--muted); } .step.done i { background: var(--accent); }
+  .step.active { color: var(--text); }
+  .step.active i::after { content: ""; position: absolute; inset: 0; width: var(--p, 30%); background: var(--warn); border-radius: 2px; transition: width .4s; }
+  .step.fail { color: var(--bad); } .step.fail i { background: var(--bad); }
+  .dep-meta { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
+  .dep-meta a { color: var(--muted); display: inline-flex; align-items: center; gap: 4px; text-decoration: none; }
+  .dep-meta a:hover { color: var(--text); }
+  .dep-meta .ic { width: 12px; height: 12px; }
+
+  /* dialogs */
+  dialog { width: min(440px, calc(100vw - 32px)); max-height: calc(100vh - 48px); padding: 0; border: 1px solid var(--card-line); border-radius: 24px; background: var(--card); color: var(--text); box-shadow: var(--shadow); overflow: auto; }
+  dialog[open] { animation: pop .18s ease-out; }
+  dialog::backdrop { background: rgba(4, 7, 10, .62); backdrop-filter: blur(6px); }
+  .dlg { padding: 18px; }
+  .dlg-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .dlg-head h2 { font-size: 17px; margin: 0; }
+  .close { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; color: var(--muted); }
+  .close:hover { background: var(--panel); color: var(--text); }
+  .hero { text-align: center; padding: 8px 0 16px; }
+  .hero .big { font-size: 34px; font-weight: 650; letter-spacing: -.02em; }
+  .hero .sub { font-size: 14px; }
+  .route { display: flex; align-items: center; justify-content: center; gap: 10px; background: var(--panel); border: 1px solid var(--panel-line); border-radius: 14px; padding: 10px; margin-bottom: 14px; }
+  .route .chain { font-size: 13.5px; }
+  .route .line { flex: 1; max-width: 70px; height: 2px; background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 25%, transparent)); border-radius: 1px; position: relative; }
+  .route .line::after { content: ""; position: absolute; right: -2px; top: -4px; border: 5px solid transparent; border-left: 6px solid color-mix(in srgb, var(--accent) 45%, transparent); border-right: 0; }
+  .rows { display: grid; gap: 10px; font-size: 13.5px; padding: 2px 2px 14px; }
+  .risk { display: flex; gap: 10px; align-items: flex-start; background: var(--warn-soft); border: 1px solid color-mix(in srgb, var(--warn) 30%, transparent); border-radius: 14px; padding: 12px; font-size: 13px; margin-bottom: 14px; cursor: pointer; }
+  .risk input { margin: 2px 0 0; accent-color: var(--accent); width: 16px; height: 16px; flex: none; }
+  .hint { font-size: 12px; color: var(--muted); text-align: center; margin: 10px 0 0; }
+  .heads-up { background: var(--warn-soft); border: 1px solid color-mix(in srgb, var(--warn) 30%, transparent); border-radius: 14px; padding: 12px; font-size: 13px; margin-bottom: 14px; }
+  .plist { list-style: none; padding: 0; margin: 4px 0 16px; display: grid; gap: 4px; }
+  .plist li { display: flex; gap: 12px; align-items: center; padding: 10px 12px; border-radius: 12px; color: var(--faint); font-size: 14px; }
+  .plist li.active { background: var(--panel); color: var(--text); }
+  .plist li.done { color: var(--muted); }
+  .plist li.fail { color: var(--bad); background: var(--bad-soft); }
+  .plist .mark { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; border: 1.5px solid var(--panel-line); flex: none; }
+  .plist li.done .mark { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .plist li.done .mark .ic { width: 13px; height: 13px; }
+  .plist li.active .mark { border: 0; color: var(--accent); }
+  .plist li.fail .mark { border-color: var(--bad); color: var(--bad); }
+  .plist li.fail .mark .ic { width: 12px; height: 12px; }
+  .err { background: var(--bad-soft); color: var(--bad); border-radius: 12px; padding: 10px 12px; font-size: 13.5px; margin-bottom: 14px; }
+  .btn-row { display: flex; gap: 8px; }
+  .btn-row .cta { height: 50px; font-size: 15px; }
+  .btn-row .cta.secondary { background: var(--panel); color: var(--text); border: 1px solid var(--panel-line); }
+  .btn-row .cta.secondary:hover { background: var(--panel-hover); }
+  .success { text-align: center; padding: 10px 4px 18px; }
+  .success .ring { width: 68px; height: 68px; border-radius: 50%; margin: 6px auto 14px; display: grid; place-items: center; background: var(--ok-soft); color: var(--ok); animation: pop .3s ease-out; }
+  .success .ring .ic { width: 32px; height: 32px; stroke-width: 2.5; }
+  .success h3 { margin: 0 0 6px; font-size: 20px; }
+  .success p { margin: 0 0 4px; color: var(--muted); font-size: 14px; }
+  .section { margin-bottom: 18px; }
+  .section h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 8px; }
+  .checks { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 13.5px; }
+  .checks li { display: flex; gap: 8px; align-items: center; }
+  .checks .ic { width: 15px; height: 15px; }
+  .checks .y { color: var(--ok); } .checks .n { color: var(--bad); }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .stat { background: var(--panel); border: 1px solid var(--panel-line); border-radius: 12px; padding: 10px; }
+  .stat b { display: block; font-size: 16px; }
+  .stat span { font-size: 11.5px; color: var(--muted); }
+  .addr { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 13.5px; padding: 6px 0; border-top: 1px solid var(--card-line); }
+  .addr:first-child { border-top: 0; }
+  .addr a { display: inline-flex; align-items: center; gap: 5px; color: var(--muted); text-decoration: none; }
+  .addr a:hover { color: var(--text); }
+  .addr .ic { width: 12px; height: 12px; }
+  .prose { font-size: 13.5px; color: var(--muted); margin: 0; }
+  .prose li { margin-bottom: 4px; }
+  .prose ul { padding-left: 18px; margin: 0; }
+  .fine .link { color: var(--muted); }
+  .fine.bad .link { color: var(--bad); }
+  .wallets { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .wallets button { display: flex; align-items: center; gap: 12px; width: 100%; height: 56px; padding: 0 14px; border-radius: 14px; background: var(--panel); border: 1px solid var(--panel-line); font-weight: 600; text-align: left; transition: border-color .15s; }
+  .wallets button:hover:not(:disabled) { border-color: var(--faint); }
+  .wallets button:disabled { opacity: .6; }
+  .wallets img, .wallets .wicon { width: 32px; height: 32px; border-radius: 9px; flex: none; }
+  .wallets .wicon { display: grid; place-items: center; background: var(--card); color: var(--muted); }
+  .wallets small { margin-left: auto; font-weight: 500; color: var(--muted); font-size: 12px; }
+  .dep .claim { width: 100%; margin-top: 12px; }
+  .addnet { display: inline-flex; align-items: center; gap: 5px; height: 26px; padding: 0 9px; border-radius: 8px; font-size: 12.5px; font-weight: 600; color: var(--accent); background: var(--accent-soft); transition: filter .15s; }
+  .addnet:hover { filter: brightness(1.15); }
+  .addnet .ic { width: 13px; height: 13px; }
+  .netrow { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 12px; border-top: 1px solid var(--panel-line); font-size: 13.5px; }
+  .netrow:first-child { border-top: 0; }
+  .netrow > span:first-child { color: var(--muted); flex: none; }
+  .netrow > span:last-child { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
+  .netrow b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .netrow .mono { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .netbox { background: var(--panel); border: 1px solid var(--panel-line); border-radius: 14px; margin-bottom: 14px; }
+  .timeline-card { margin-top: 12px; }
+  .timeline-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 4px 4px 6px; }
+  .timeline-head h2 { font-size: 16px; margin: 0; letter-spacing: -.01em; }
+  .timeline-head b { font-size: 15px; white-space: nowrap; }
+  .timeline-sub { margin: 0 4px 6px; font-size: 13px; color: var(--muted); }
+  .timeline { list-style: none; margin: 0; padding: 0 4px; }
+  .timeline li { position: relative; display: grid; grid-template-columns: 26px 1fr; gap: 12px; padding: 10px 0; }
+  .timeline li:not(:last-child)::before { content: ""; position: absolute; left: 12px; top: 36px; bottom: -6px; width: 2px; background: var(--panel-line); }
+  .timeline .n { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; color: var(--accent); background: var(--accent-soft); }
+  .timeline .t { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; font-weight: 600; }
+  .timeline .t em { font-style: normal; font-weight: 500; color: var(--muted); font-size: 13px; white-space: nowrap; }
+  .timeline p { margin: 2px 0 0; font-size: 12.5px; color: var(--muted); }
+
+  /* toasts */
+  .toasts { position: fixed; right: 20px; bottom: 20px; display: grid; gap: 8px; z-index: 50; }
+  .toast { display: flex; align-items: center; gap: 10px; background: var(--card); border: 1px solid var(--card-line); box-shadow: var(--shadow); border-radius: 14px; padding: 12px 14px; font-size: 14px; animation: rise .2s ease-out; transition: opacity .3s, transform .3s; max-width: 360px; }
+  .toast.ok .ic { color: var(--ok); }
+  .toast.out { opacity: 0; transform: translateY(6px); }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes pop { from { opacity: 0; transform: scale(.97); } to { opacity: 1; transform: none; } }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+  @media (max-width: 520px) {
+    .nav { padding: 12px 16px; }
+    .brand span b { display: none; }
+    .notice div { flex-wrap: nowrap; font-size: 12.5px; }
+    .notice .long { display: none; }
+    .notice .short { display: inline; }
+    .card { padding: 12px; border-radius: 20px; }
+    .amount { font-size: 30px; }
+    .stats { grid-template-columns: 1fr 1fr; }
+    .toasts { left: 16px; right: 16px; bottom: 16px; }
+    .toast { max-width: none; }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="g-ely" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2f6576"/><stop offset="1" stop-color="#0f2830"/></linearGradient>
+    <symbol id="i-hyperevm" viewBox="0 0 144 144"><circle cx="72" cy="72" r="72" fill="#0f2a26"/><path transform="translate(28.8 28.6) scale(0.6)" fill="#97fce4" d="M144 71.6991C144 119.306 114.866 134.582 99.5156 120.98C86.8804 109.889 83.1211 86.4521 64.116 84.0456C39.9942 81.0113 37.9057 113.133 22.0334 113.133C3.5504 113.133 0 86.2428 0 72.4315C0 58.3063 3.96809 39.0542 19.736 39.0542C38.1146 39.0542 39.1588 66.5722 62.132 65.1073C85.0007 63.5379 85.4184 34.8689 100.247 22.6271C113.195 12.0593 144 23.4641 144 71.6991Z"/></symbol>
+    <symbol id="i-elysium" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="url(#g-ely)"/><g fill="none" stroke="#cfe9f2" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 13.5l7-4 7 4"/><path d="M9 18l7-4 7 4"/><path d="M9 22.5l7-4 7 4"/></g></symbol>
+    <symbol id="i-hype" viewBox="0 0 144 144"><circle cx="72" cy="72" r="72" fill="#0f2a26"/><path transform="translate(28.8 28.6) scale(0.6)" fill="#97fce4" d="M144 71.6991C144 119.306 114.866 134.582 99.5156 120.98C86.8804 109.889 83.1211 86.4521 64.116 84.0456C39.9942 81.0113 37.9057 113.133 22.0334 113.133C3.5504 113.133 0 86.2428 0 72.4315C0 58.3063 3.96809 39.0542 19.736 39.0542C38.1146 39.0542 39.1588 66.5722 62.132 65.1073C85.0007 63.5379 85.4184 34.8689 100.247 22.6271C113.195 12.0593 144 23.4641 144 71.6991Z"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/></g></symbol>
+    <symbol id="i-sun" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></g></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></g></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 4.2L2.6 17.5A2 2 0 0 0 4.3 20.5h15.4a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0z"/><path d="M12 9.5v4M12 17h.01"/></g></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="2.5"/><circle cx="18" cy="5" r="2.5"/><path d="M8.5 19H15a3.5 3.5 0 0 0 0-7H9a3.5 3.5 0 0 1 0-7h6.5"/></g></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12V4a1 1 0 0 1 1-1h8l9 9-9 9-9-9z"/><path d="M8 8h.01"/></g></symbol>
+    <symbol id="i-gas" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M4 10h10"/><path d="M14 8l3 3v6a2 2 0 0 0 4 0V9l-3-3"/></g></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></g></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></g></symbol>
+    <symbol id="i-inbox" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.5 5h13l3.5 7v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6z"/></g></symbol>
+    <symbol id="i-wallet" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0 0 4h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5"/><path d="M16 14h.01"/></g></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-out" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></g></symbol>
+  </defs>
+</svg>
+
+<header class="nav">
+  <a class="brand" href="./"><svg class="ic"><use href="#i-elysium"/></svg><span>Elysium <b>Bridge</b></span></a>
+  <div class="nav-right">
+    <button id="theme" class="icon-btn" aria-label="Toggle theme"></button>
+    <div id="wallet-slot"></div>
+    <div id="menu" class="menu" hidden></div>
+  </div>
+</header>
+
+<div class="notice"><div><svg class="ic"><use href="#i-alert"/></svg><span class="long">Unofficial interface · Elysium mainnet is pre-launch ·</span><span class="short">Unofficial · pre-launch ·</span><button class="link" id="open-risks">Read the risks</button></div></div>
+
+<main>
+  <div class="tvls">
+    <div class="tvl" id="tvl" hidden title="The HYPE delivered on Elysium by deposits made on this page since Oct 27, 2026, when its fee route went live. Read from HyperEVM; earlier deposits went straight to the Inbox and can't be told apart.">
+      <span class="tvl-dot" aria-hidden="true"></span>
+      <span><b id="tvl-hype" class="num">—</b> HYPE bridged in with Kleos</span>
+      <span id="tvl-usd" class="tvl-usd num"></span>
+      <span id="tvl-count" class="tvl-count num"></span>
+    </div>
+    <div class="tvl" id="tvl-out" hidden title="The HYPE sent to HyperEVM by withdrawals made on this page since Oct 28, 2026, when its withdrawal fee went live, counted once its batch has run on Elysium. Read from Elysium; earlier withdrawals went straight to ArbSys and can't be told apart.">
+      <span class="tvl-dot" aria-hidden="true"></span>
+      <span><b id="tvl-out-hype" class="num">—</b> HYPE bridged out with Kleos</span>
+      <span id="tvl-out-usd" class="tvl-usd num"></span>
+      <span id="tvl-out-count" class="tvl-count num"></span>
+    </div>
+  </div>
+  <div class="tabs" role="tablist">
+    <button class="tab active" role="tab" data-view="deposit">Deposit</button>
+    <button class="tab" role="tab" data-view="withdraw">Withdraw</button>
+    <button class="tab" role="tab" data-view="activity">Activity <span class="count" id="pending-count" hidden></span></button>
+  </div>
+
+  <section id="view-bridge" class="card">
+    <div class="card-head">
+      <h1 id="card-title">Deposit</h1>
+      <button id="status" class="status"><span class="dot"></span><span id="status-text">Checking route</span></button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-top"><span>From</span><span class="chain" id="from-chain"><svg class="ic"><use href="#i-hyperevm"/></svg>HyperEVM</span></div>
+      <div class="amount-row">
+        <input id="amount" class="amount" type="text" inputmode="decimal" placeholder="0" autocomplete="off" spellcheck="false" aria-label="Amount in HYPE">
+        <span class="token"><svg class="ic"><use href="#i-hype"/></svg>HYPE</span>
+      </div>
+      <div class="panel-bottom">
+        <span id="usd-from" class="num">$0.00</span>
+        <span>Balance <span id="bal" class="num">—</span><span class="chips"><button class="chip" data-pct="25">25%</button><button class="chip" data-pct="50">50%</button><button class="chip" data-pct="100">Max</button></span></span>
+      </div>
+    </div>
+
+    <div class="flip-wrap"><button type="button" id="flip" class="flip" title="Withdraw to HyperEVM"><svg class="ic"><use href="#i-down"/></svg></button></div>
+
+    <div class="panel">
+      <div class="panel-top"><span>To</span><span class="chain" id="to-chain"><svg class="ic"><use href="#i-elysium"/></svg>Elysium <span class="tag">Pre-launch</span></span></div>
+      <div class="amount-row">
+        <div id="receive" class="amount empty num">0</div>
+        <span class="token"><svg class="ic"><use href="#i-hype"/></svg>HYPE</span>
+      </div>
+      <div class="panel-bottom"><span id="usd-to" class="num">$0.00</span><span id="l2bal">To your wallet address</span></div>
+    </div>
+
+    <div class="details">
+      <div class="drow"><span><svg class="ic"><use href="#i-elysium"/></svg>Elysium network</span><span><button type="button" id="add-network" class="addnet"><svg class="ic"><use href="#i-plus"/></svg>Add to wallet</button></span></div>
+      <div class="drow"><span><svg class="ic"><use href="#i-route"/></svg>Route</span><span id="route-value">Canonical inbox <span class="sub">· depositEth</span></span></div>
+      <div class="drow"><span><svg class="ic"><use href="#i-tag"/></svg>Bridge fee</span><span id="bridge-fee" class="num">1%</span></div>
+      <div class="drow"><span><svg class="ic"><use href="#i-gas"/></svg>Network fee</span><span id="fee" class="num">—</span></div>
+      <div class="drow"><span><svg class="ic"><use href="#i-clock"/></svg>Arrival</span><span id="arrival-value">Next sequencer batch <span class="sub">· ~3h</span></span></div>
+      <div class="drow" id="queue-row"><span id="queue-label"><svg class="ic"><use href="#i-inbox"/></svg>Inbox queue</span><span id="queue" class="num">—</span></div>
+    </div>
+
+    <button id="cta" class="cta" disabled><span class="spin"></span>Checking route</button>
+    <p id="cta-hint" class="fine">Up to 10 HYPE per deposit · 1% bridge fee · plain wallets (EOAs) only</p>
+    <p id="custody" class="fine"></p>
+  </section>
+
+  <section id="view-timeline" class="card timeline-card" hidden></section>
+
+  <section id="view-activity" class="card" hidden>
+    <div class="card-head"><h1>Activity</h1></div>
+    <div class="track">
+      <input id="track-hash" class="field" type="text" placeholder="Track a deposit or withdrawal by tx hash" autocomplete="off" spellcheck="false">
+      <button id="track" class="btn btn-ghost">Track</button>
+    </div>
+    <div id="deps"></div>
+  </section>
+</main>
+
+<dialog id="modal"><div class="dlg" id="modal-body"></div></dialog>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script>
+const CFG = {
+  parentChainId: 999,
+  childChainId: 99901n,
+  rpc: 'https://rpc.hyperliquid.xyz/evm',
+  infoApi: 'https://api.hyperliquid.xyz/info',
+  explorer: 'https://hyperevmscan.io',
+  conduitConfig: 'https://api.conduit.xyz/file/v1/arbitrum/chaininfo/elysium-mainnet',
+  inbox: '0xce59f8b65ad41c9dae4c07a0571a39824bd92cff',
+  bridge: '0x503d572157113faaad4dbed2647bb10b949216b6',
+  rollup: '0x508c173dfe5f737b3493195bf785d71fa76fd217',
+  sequencerInbox: '0x7f3ff53aecb87261206ad3bdc27a88b6d8420fa6',
+  outbox: '0xeC6B106DfA14428FE5Eec2a4065a7be599f02728',
+  upgradeExecutor: '0xDD45a7A06Cc21cfe442cF13dFfeb8252B18c1441',
+  // Who could upgrade the bridge contracts when this page was last reviewed. Read live on every refresh, so the
+  // disclosure under the button says when that changes.
+  upgradeSafe: '0xc030cee9e03a6dfbda0a817c8bdb4ba44d6d61d0',
+  controlCheckedOn: '2026-10-26',
+  // Elysium has no official public RPC yet. Flux runs its own node (infra/elysium-node) behind the Kleos relay, on
+  // rpc.thekleos.xyz/rpc, and BOXA's third-party node is the fallback. Each refresh uses the first that answers and whose
+  // chain ID and genesis hash match Elysium mainnet. Before launch, withdrawals go out through the relay.
+  childRpcs: [
+    { url: 'https://rpc.thekleos.xyz/rpc', name: 'Kleos', owner: "Kleos's own node", thirdParty: false, relay: true },
+    { url: 'https://rpc.boxa.club/', name: 'BOXA', owner: 'a node run by BOXA', thirdParty: true },
+  ],
+  childGenesisHash: '0x14cd46a8e7cfd201c7a79d307c320213f984e7a2b3297cd4e2c4b514538db600',
+  maxHype: '10',        // hard cap per deposit; raise it here if you mean it
+  gasBufferHype: '0.01',
+  // Deposits keep a 1% bridge fee for the Kleos platform wallet. One transaction through Multicall3 (the canonical
+  // contract, checked by code hash on every refresh) sends the fee and opens a retryable ticket in Elysium's inbox that
+  // pays the rest to your own address on Elysium, as BOXA does for its 2%. Both calls succeed or neither does.
+  feeBps: 100n,
+  // Withdrawals keep a 2% bridge fee for the same wallet, the same way: one transaction on Elysium through Multicall3
+  // (the same contract there, checked by code hash before each withdrawal) pays the fee and withdraws the rest to your
+  // own address on HyperEVM. Before launch the Kleos relay posts only withdrawals in exactly this shape.
+  withdrawFeeBps: 200n,
+  feeRecipient: '0x4116CCc1cc2B34953F73413C4747c954F49C179b',
+  multicall: '0xca11bde05977b3631167028862be2a173976ca11',
+  multicallSha256: '2756d7c52baee85cacb504f6ee1df7aad6809ac8d94a4a111d76991f90d36d6e',
+  // Gas for Elysium's automatic redeem of the ticket, a plain HYPE transfer (21,000); what it doesn't use is refunded.
+  ticketGas: 200000n,
+  depositGas: 150000n,  // the fee and the ticket through Multicall3, simulated at ~120k gas
+  // The fee and withdrawEth through Multicall3, which Elysium's node estimates at ~133k gas. Set on the transaction, so a
+  // wallet doesn't sign the live fork's estimate (its ArbSys is a stub that costs a third of that) and fail in the batch.
+  withdrawGas: 300000n,
+  arbSys: '0x0000000000000000000000000000000000000064',
+  nodeInterface: '0x00000000000000000000000000000000000000c8',
+  // The RPC wallets add for Elysium: the Kleos relay at the same URL the Kleos app adds.
+  walletRpc: 'https://rpc.thekleos.xyz/rpc',
+  // Our Elysium node itself, read-only: the HYPE a wallet holds on the chain now. Through the relay a balance counts what
+  // waits for the batch, so a withdrawal can be counting on a trade that hasn't gone through yet.
+  childNodeRpc: 'https://rpc.thekleos.xyz/',
+  // A withdrawal is claimable once a confirmed assertion covers it: the next assertion (about every 12h so far) plus
+  // the 483,840-block challenge period (about 5½ days of HyperEVM blocks). Estimates come from the live checkpoint
+  // timeline (readTimeline); this is the fallback when it can't be read.
+  claimDelayMs: 6 * 24 * 3600 * 1000,
+  pollMs: 45000,
+  // Before launch Elysium only makes blocks when a batch lands (about every 3 hours), and no RPC takes
+  // public transactions. A fresh block alone isn't proof (every batch makes a burst of them), so withdrawals
+  // open only from the announced public launch, and then only while blocks keep coming.
+  publicLaunchMs: Date.UTC(2026, 10, 9),
+  liveBlockAgeMs: 5 * 60 * 1000,
+};
+const SEL = {
+  depositEth: '0x439370b1', withdrawEth: '0x25e16063', aggregate3Value: '0x174dea71', createRetryableTicket: '0x679b6ded', paused: '0x5c975abb', allowListEnabled: '0x22bd5c1c',
+  bridge: '0xe78cea92', rollup: '0xcb23bcb5', chainId: '0x9a8a0592', sequencerInbox: '0xee35f327',
+  delayedMessageCount: '0xeca067ad', totalDelayedMessagesRead: '0x7fa3a40e', batchCount: '0x06f13056',
+  outbox: '0xce11e6ab', latestConfirmed: '0x65f7f80d', getAssertion: '0x88302884', isSpent: '0x5a129efe',
+  executeTransaction: '0x08635a95', constructOutboxProof: '0x42696350',
+  latestStakedAssertion: '0x2abdd230', confirmPeriodBlocks: '0x2e7acfa6',
+  hasRole: '0x91d14854', getThreshold: '0xe75235b8', getOwners: '0xa0e67e2b', getValidators: '0xb7ab4db5', validatorWhitelistDisabled: '0x12ab3d3b',
+};
+const EXECUTOR_ROLE = '0xd8aa0f3194971a2a116679f7c2090f6939c8d4e01a2a8d7e41d55e5351469e63';
+// Bridge event: MessageDelivered(uint256 indexed messageIndex, bytes32 indexed beforeInboxAcc, address inbox, uint8 kind, address sender, bytes32 messageDataHash, uint256 baseFeeL1, uint64 timestamp)
+const MESSAGE_DELIVERED = '0x5e3c1311ea442664e8b1611bfabef659120ea7a0a2cfc0667700bebc69cbffe1';
+// ArbSys event: L2ToL1Tx(address caller, address indexed destination, uint256 indexed hash, uint256 indexed position, uint256 arbBlockNum, uint256 ethBlockNum, uint256 timestamp, uint256 callvalue, bytes data)
+const L2_TO_L1_TX = '0x3e7aafa77dbf186b7fd488006beff893744caa3c4f6f299e8a709fa2087374fc';
+// Rollup event: AssertionCreated(bytes32 indexed assertionHash, bytes32 indexed parentAssertionHash, AssertionInputs assertion, ...).
+// Its data is all fixed-size; words 13 and 14 are the after-state's Elysium block hash and send root.
+const ASSERTION_CREATED = '0x901c3aee23cf4478825462caaab375c606ab83516060388344f0650340753630';
+const ETH_DEPOSIT_KIND = 12n;
+const RETRYABLE_KIND = 9n;
+const FORCE_INCLUDE_MS = 24 * 3600 * 1000;
+const STORE = 'elysium-direct-deposits-v1';
+const WEI = 10n ** 18n;
+
+const $ = (id) => document.getElementById(id);
+// The wallet the page talks to, once one is picked. Wallets announce themselves (EIP-6963), so with several installed
+// the person chooses; window.ethereum is only whichever extension grabbed it (Phantom often does), and is used when
+// nothing announces. Mobile wallet browsers inject into the top page only, and this bridge is a frame, so look there too.
+const provider = () => state.wallet?.provider ?? null;
+function legacyProvider() {
+  if (window.ethereum) return window.ethereum;
+  try {
+    if (window.parent && window.parent !== window && window.parent.ethereum) return window.parent.ethereum;
+  } catch {}
+  return null;
+}
+const announced = new Map(); // rdns (or uuid) → { info, provider }
+/** The wallets to offer: the ones that announced, or the injected one when none did. */
+function walletChoices() {
+  if (announced.size) return [...announced.values()];
+  const p = legacyProvider();
+  return p ? [{ info: { rdns: 'injected', name: 'Browser wallet' }, provider: p }] : [];
+}
+const state = {
+  chain: null, chainError: null, price: null, gasPrice: null,
+  dir: 'deposit',
+  wallet: null, account: null, balance: null, hasCode: false, walletChainId: null, childGasPrice: null,
+  child: null, l2Balance: null, l2Settled: null, relay: null, control: null, confirmed: null, timeline: null,
+  deposits: [],
+};
+
+/* ---------- small helpers ---------- */
+const recall = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
+const store = (k, v) => { try { localStorage.setItem(k, v); } catch {} };
+const same = (a, b) => !!a && !!b && a.toLowerCase() === b.toLowerCase();
+const short = (a) => a.slice(0, 6) + '…' + a.slice(-4);
+const asAddr = (hex) => '0x' + hex.slice(-40).toLowerCase();
+const capWei = () => parseHype(CFG.maxHype);
+const bufferWei = () => parseHype(CFG.gasBufferHype);
+
+function el(tag, props = {}, ...kids) {
+  const n = document.createElement(tag);
+  for (const [k, v] of Object.entries(props)) {
+    if (v == null || v === false) continue;
+    if (k === 'class') n.className = v;
+    else if (k === 'text') n.textContent = v;
+    else if (k.startsWith('on')) n.addEventListener(k.slice(2), v);
+    else n.setAttribute(k, v === true ? '' : v);
+  }
+  for (const c of kids.flat()) if (c != null && c !== false) n.append(c);
+  return n;
+}
+function icon(name, cls = '') {
+  const ns = 'http://www.w3.org/2000/svg';
+  const s = document.createElementNS(ns, 'svg');
+  s.setAttribute('class', `ic ${cls}`.trim());
+  s.setAttribute('aria-hidden', 'true');
+  const u = document.createElementNS(ns, 'use');
+  u.setAttribute('href', `#i-${name}`);
+  s.append(u);
+  return s;
+}
+const spinner = () => el('span', { class: 'spin' });
+
+function parseHype(s) {
+  s = String(s).trim();
+  if (!/^\d*(\.\d*)?$/.test(s) || s === '' || s === '.') return null;
+  const [whole, frac = ''] = s.split('.');
+  if (frac.length > 18) return null;
+  return BigInt(whole || '0') * WEI + BigInt(frac.padEnd(18, '0'));
+}
+function fmtHype(wei, dp = 4) {
+  const whole = wei / WEI;
+  const frac = (wei % WEI).toString().padStart(18, '0').slice(0, dp).replace(/0+$/, '');
+  return whole.toLocaleString('en-US') + (frac ? '.' + frac : '');
+}
+function fmtSmallHype(wei) {
+  if (wei === 0n) return '0';
+  const s = fmtHype(wei, 8);
+  return s === '0' ? '<0.00000001' : s;
+}
+function usd(wei) {
+  if (state.price == null || wei == null) return '—';
+  const v = Number(wei) / 1e18 * state.price;
+  if (v > 0 && v < 0.01) return '<$0.01';
+  return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function weiToInput(wei) {
+  const whole = wei / WEI;
+  const frac = ((wei % WEI) / 10n ** 12n).toString().padStart(6, '0').replace(/0+$/, '');
+  return whole.toString() + (frac ? '.' + frac : '');
+}
+function ago(ms) {
+  const s = Math.max(0, Math.round((Date.now() - ms) / 1000));
+  if (s < 60) return 'just now';
+  if (s < 3600) return `${Math.floor(s / 60)}m ago`;
+  if (s < 86400) return `${Math.floor(s / 3600)}h ago`;
+  return `${Math.floor(s / 86400)}d ago`;
+}
+function avatar(addr) {
+  const h1 = parseInt(addr.slice(2, 8), 16) % 360;
+  const h2 = (h1 + 40 + (parseInt(addr.slice(8, 10), 16) % 80)) % 360;
+  return el('span', { class: 'avatar', style: `background: linear-gradient(135deg, hsl(${h1} 70% 60%), hsl(${h2} 70% 45%))` });
+}
+function toast(text, tone = '') {
+  const t = el('div', { class: `toast ${tone}` }, icon(tone === 'ok' ? 'check' : 'info'), el('span', { text }));
+  $('toasts').append(t);
+  setTimeout(() => t.classList.add('out'), 3800);
+  setTimeout(() => t.remove(), 4200);
+}
+function copy(text, label = 'Copied') {
+  navigator.clipboard?.writeText(text).then(() => toast(label, 'ok'), () => toast("Couldn't copy"));
+}
+const explorerTx = (h) => `${CFG.explorer}/tx/${h}`;
+const explorerAddr = (a) => `${CFG.explorer}/address/${a}`;
+const fmtDate = (ms) => new Date(ms).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+// ABI words, by hand like the selectors above.
+const words = (hex) => hex.slice(2).match(/.{64}/g) || [];
+const word = (n) => BigInt(n).toString(16).padStart(64, '0');
+
+/** SHA-256 of some hex bytes, as hex: how the page checks Multicall3's code without a Keccak implementation. */
+async function sha256Hex(hex) {
+  const bytes = new Uint8Array((hex.slice(2).match(/../g) || []).map((b) => parseInt(b, 16)));
+  return [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+/**
+ * How a deposit of `wei` splits: the 1% fee, the ticket's Elysium costs (its submission fee at twice HyperEVM's base
+ * fee, and its redeem gas at twice Elysium's base fee, at least 0.2 gwei, as the Kleos app prices tickets; Elysium
+ * refunds what isn't used), and what the ticket pays you. Null until HyperEVM's base fee is known, or when the amount
+ * doesn't cover the costs.
+ */
+function depositSplit(wei, l1BaseFee = state.chain?.baseFee, l2BaseFee = state.child?.ok ? state.child.baseFee : 0n) {
+  if (wei == null || wei <= 0n || l1BaseFee == null) return null;
+  const fee = (wei * CFG.feeBps) / 10000n;
+  const maxSubmissionCost = 1400n * l1BaseFee * 2n;
+  const floor = 200000000n;
+  const maxFeePerGas = l2BaseFee * 2n > floor ? l2BaseFee * 2n : floor;
+  const costs = maxSubmissionCost + CFG.ticketGas * maxFeePerGas;
+  const pays = wei - fee - costs;
+  return pays > 0n ? { fee, maxSubmissionCost, maxFeePerGas, costs, pays } : null;
+}
+
+/**
+ * The deposit: Multicall3.aggregate3Value with two calls that must both succeed, the fee to the platform wallet and
+ * Inbox.createRetryableTicket. The ticket pays `split.pays` to you on Elysium, and you are its refund address and
+ * beneficiary, so unused gas comes back to you and only you can cancel it. It carries exactly its submission cost,
+ * its payout and its gas, so nothing is left at Multicall3's address on Elysium, which anyone could sweep.
+ */
+function depositTx(account, wei, split) {
+  const ticket = SEL.createRetryableTicket + addrWord(account) + word(split.pays) + word(split.maxSubmissionCost)
+    + addrWord(account) + addrWord(account) + word(CFG.ticketGas) + word(split.maxFeePerGas) + word(8 * 32) + word(0);
+  const calls = [
+    { target: CFG.feeRecipient, value: split.fee, data: '0x' },
+    { target: CFG.inbox, value: wei - split.fee, data: ticket },
+  ];
+  return { from: account, to: CFG.multicall, value: '0x' + wei.toString(16), data: aggregate3Value(calls) };
+}
+
+/** Multicall3.aggregate3Value call data: each call (address target, bool allowFailure, uint256 value, bytes callData), allowFailure false, after its offset. */
+function aggregate3Value(calls) {
+  const enc = calls.map((c) => {
+    const d = c.data.slice(2);
+    return addrWord(c.target) + word(0) + word(c.value) + word(4 * 32) + word(d.length / 2) + d.padEnd(Math.ceil(d.length / 64) * 64, '0');
+  });
+  let at = calls.length * 32;
+  const offsets = enc.map((e) => { const o = word(at); at += e.length / 2; return o; });
+  return SEL.aggregate3Value + word(32) + word(calls.length) + offsets.join('') + enc.join('');
+}
+
+/** The calls in Multicall3.aggregate3Value call data, read back word by word; `fail` unless there are exactly `count`. */
+function aggregate3ValueCalls(data, count, fail) {
+  const n = (h) => BigInt('0x' + h);
+  if (data.slice(0, 10) !== SEL.aggregate3Value) fail('function');
+  const w = words('0x' + data.slice(10));
+  if (n(w[0]) !== 32n || n(w[1]) !== BigInt(count)) fail('calls');
+  return Array.from({ length: count }, (_, i) => {
+    const a = 2 + Number(n(w[2 + i]) / 32n);
+    if (n(w[a + 3]) !== 128n) fail('call layout');
+    return { target: asAddr(w[a]), allowFailure: n(w[a + 1]), value: n(w[a + 2]), data: '0x' + w.slice(a + 5).join('').slice(0, Number(n(w[a + 4])) * 2) };
+  });
+}
+
+/**
+ * Reads back the deposit transaction just built and refuses it unless it is exactly: `wei` to Multicall3, the 1% fee
+ * to the platform wallet, and the rest into Elysium's inbox as a ticket that only pays `account`, with nothing left over.
+ */
+function checkDepositTx(tx, wei, account, split) {
+  const fail = (why) => { throw new Error(`The deposit failed its own check (${why}). Nothing was sent.`); };
+  const n = (h) => BigInt('0x' + h);
+  if (!same(tx.to, CFG.multicall) || BigInt(tx.value) !== wei) fail('contract or value');
+  const [fee, ticket] = aggregate3ValueCalls(tx.data, 2, fail);
+  if (fee.allowFailure !== 0n || ticket.allowFailure !== 0n) fail('a call may fail');
+  if (!same(fee.target, CFG.feeRecipient) || fee.data !== '0x' || fee.value !== (wei * CFG.feeBps) / 10000n || fee.value !== split.fee) fail('fee');
+  if (!same(ticket.target, CFG.inbox) || fee.value + ticket.value !== wei) fail('ticket value');
+  if (ticket.data.slice(0, 10) !== SEL.createRetryableTicket) fail('ticket function');
+  const t = words('0x' + ticket.data.slice(10));
+  if (![t[0], t[3], t[4]].every((x) => same(asAddr(x), account))) fail('ticket recipient');
+  if (n(t[7]) !== 256n || n(t[8]) !== 0n) fail('ticket call data');
+  if (n(t[1]) !== split.pays || n(t[1]) <= 0n) fail('amount');
+  if (n(t[2]) + n(t[1]) + n(t[5]) * n(t[6]) !== ticket.value) fail('ticket costs');
+}
+
+/** How a withdrawal of `wei` splits: the 2% fee, rounded down, and what's withdrawn to you on HyperEVM. */
+function withdrawSplit(wei) {
+  if (wei == null || wei <= 0n) return null;
+  const fee = (wei * CFG.withdrawFeeBps) / 10000n;
+  return { fee, pays: wei - fee };
+}
+
+/**
+ * The withdrawal: Multicall3.aggregate3Value on Elysium with two calls that must both succeed, the fee to the platform
+ * wallet and ArbSys.withdrawEth of the rest to your own address on HyperEVM. Its gas is set (CFG.withdrawGas).
+ */
+function withdrawTx(account, wei, split) {
+  const calls = [
+    { target: CFG.feeRecipient, value: split.fee, data: '0x' },
+    { target: CFG.arbSys, value: split.pays, data: SEL.withdrawEth + addrWord(account) },
+  ];
+  return { from: account, to: CFG.multicall, value: hexQty(wei), gas: hexQty(CFG.withdrawGas), data: aggregate3Value(calls) };
+}
+
+/**
+ * Reads back the withdrawal transaction just built and refuses it unless it is exactly: `wei` to Multicall3, the 2% fee
+ * to the platform wallet, and withdrawEth of the rest to `account`, with nothing left over.
+ */
+function checkWithdrawTx(tx, wei, account, split) {
+  const fail = (why) => { throw new Error(`The withdrawal failed its own check (${why}). Nothing was sent.`); };
+  if (!same(tx.to, CFG.multicall) || BigInt(tx.value) !== wei) fail('contract or value');
+  const [fee, out] = aggregate3ValueCalls(tx.data, 2, fail);
+  if (fee.allowFailure !== 0n || out.allowFailure !== 0n) fail('a call may fail');
+  if (!same(fee.target, CFG.feeRecipient) || fee.data !== '0x' || fee.value !== (wei * CFG.withdrawFeeBps) / 10000n || fee.value !== split.fee) fail('fee');
+  if (!same(out.target, CFG.arbSys) || out.data.toLowerCase() !== SEL.withdrawEth + addrWord(account)) fail('withdrawal recipient');
+  if (out.value !== split.pays || out.value <= 0n || fee.value + out.value !== wei) fail('amount');
+}
+const addrWord = (a) => a.slice(2).toLowerCase().padStart(64, '0');
+const hexQty = (n) => '0x' + BigInt(n).toString(16);
+const arrayLength = (hex) => Number(BigInt('0x' + (words(hex)[1] || '0')));
+
+/* ---------- chain reads ---------- */
+let rpcId = 0;
+async function rpcAt(url, name, method, params = []) {
+  const res = await fetch(url, {
+    method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ jsonrpc: '2.0', id: ++rpcId, method, params }),
+  });
+  if (!res.ok) throw new Error(`${name} RPC returned HTTP ${res.status}`);
+  const body = await res.json();
+  if (body.error) throw new Error(body.error.message || `${name} RPC error`);
+  return body.result;
+}
+const rpc = (method, params) => rpcAt(CFG.rpc, 'HyperEVM', method, params);
+// The Elysium node the last check picked; Flux's own until a check says otherwise.
+const childNode = () => state.child?.node ?? CFG.childRpcs[0];
+const childRpc = (method, params) => rpcAt(childNode().url, childNode().name, method, params);
+const call = (to, data) => rpc('eth_call', [{ to, data }, 'latest']);
+
+async function readChain() {
+  const [rpcChain, paused, allow, inboxBridge, bridgeRollup, rollupChain, inboxSeq, rollupOutbox, delayed, read, batches, bal] = await Promise.all([
+    rpc('eth_chainId'),
+    call(CFG.inbox, SEL.paused), call(CFG.inbox, SEL.allowListEnabled), call(CFG.inbox, SEL.bridge),
+    call(CFG.bridge, SEL.rollup), call(CFG.rollup, SEL.chainId), call(CFG.inbox, SEL.sequencerInbox), call(CFG.rollup, SEL.outbox),
+    call(CFG.bridge, SEL.delayedMessageCount), call(CFG.sequencerInbox, SEL.totalDelayedMessagesRead),
+    call(CFG.sequencerInbox, SEL.batchCount), rpc('eth_getBalance', [CFG.bridge, 'latest']),
+  ]);
+  const [multicallCode, head] = await Promise.all([rpc('eth_getCode', [CFG.multicall, 'latest']), rpc('eth_getBlockByNumber', ['latest', false])]);
+  const checks = [
+    ['RPC is HyperEVM mainnet (999)', parseInt(rpcChain, 16) === CFG.parentChainId],
+    ['Inbox points at the expected bridge', same(asAddr(inboxBridge), CFG.bridge)],
+    ['Bridge points at the expected rollup', same(asAddr(bridgeRollup), CFG.rollup)],
+    ['Rollup reports chain ID 99901', BigInt(rollupChain) === CFG.childChainId],
+    ['Inbox points at the expected sequencer inbox', same(asAddr(inboxSeq), CFG.sequencerInbox)],
+    ['Rollup points at the expected outbox', same(asAddr(rollupOutbox), CFG.outbox)],
+    ['Inbox is not paused', BigInt(paused) === 0n],
+    ['No deposit allowlist', BigInt(allow) === 0n],
+    ['Multicall3 is the canonical contract', (await sha256Hex(multicallCode)) === CFG.multicallSha256],
+  ];
+  return {
+    checks, ok: checks.every(([, pass]) => pass),
+    delayed: BigInt(delayed), read: BigInt(read), batches: BigInt(batches), bridgeBal: BigInt(bal),
+    baseFee: BigInt(head.baseFeePerGas ?? 0),
+  };
+}
+async function fetchPrice() {
+  const res = await fetch(CFG.infoApi, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ type: 'allMids' }) });
+  const mids = await res.json();
+  const p = parseFloat(mids.HYPE);
+  if (!Number.isFinite(p)) throw new Error('No HYPE price');
+  return p;
+}
+async function readChildAt(node) {
+  const at = (method, params) => rpcAt(node.url, node.name, method, params);
+  const [id, genesis, latest, gasPrice] = await Promise.all([
+    at('eth_chainId'), at('eth_getBlockByNumber', ['0x0', false]), at('eth_getBlockByNumber', ['latest', false]), at('eth_gasPrice'),
+  ]);
+  const checks = [
+    ['Chain ID is 99901', BigInt(id) === CFG.childChainId],
+    ['Genesis hash matches Elysium mainnet', same(genesis?.hash, CFG.childGenesisHash)],
+  ];
+  return {
+    node, checks, ok: checks.every(([, pass]) => pass), gasPrice: BigInt(gasPrice),
+    baseFee: BigInt(latest.baseFeePerGas ?? 0),
+    block: parseInt(latest.number, 16), blockTime: parseInt(latest.timestamp, 16) * 1000,
+  };
+}
+// The first node that answers and passes its checks; otherwise the first that answered (failed, so unused).
+async function readChild() {
+  let failed = null, error = null;
+  for (const node of CFG.childRpcs) {
+    try {
+      const r = await readChildAt(node);
+      if (r.ok) return r;
+      failed ??= r;
+    } catch (e) {
+      error ??= e;
+    }
+  }
+  if (failed) return failed;
+  throw error;
+}
+// Whether the Kleos relay is up: it takes withdrawals into Elysium's inbox until the sequencer is public.
+async function readRelay() {
+  const node = CFG.childRpcs.find((n) => n.relay);
+  const res = await fetch(node.url);
+  const body = await res.json();
+  return { node, ok: body?.relay === 'kleos' && body.chainId === Number(CFG.childChainId) };
+}
+// Who can change the bridge: does the Safe this page was reviewed against still hold the upgrade role, how many of its
+// signers it takes, and how many validators may post Elysium's state.
+async function readControl() {
+  const [held, threshold, owners, whitelistOff, validators] = await Promise.all([
+    call(CFG.upgradeExecutor, SEL.hasRole + EXECUTOR_ROLE.slice(2) + addrWord(CFG.upgradeSafe)),
+    call(CFG.upgradeSafe, SEL.getThreshold), call(CFG.upgradeSafe, SEL.getOwners),
+    call(CFG.rollup, SEL.validatorWhitelistDisabled), call(CFG.rollup, SEL.getValidators),
+  ]);
+  return {
+    safeHolds: BigInt(held) === 1n, threshold: Number(BigInt(threshold)), owners: arrayLength(owners),
+    whitelist: BigInt(whitelistOff) === 0n, validators: arrayLength(validators),
+  };
+}
+async function refreshL2Balance() {
+  const acct = state.account;
+  if (!acct || !state.child?.ok) { state.l2Balance = null; state.l2Settled = null; return; }
+  const [bal, settled] = await Promise.all([
+    childRpc('eth_getBalance', [acct, 'latest']),
+    childNode().relay ? rpcAt(CFG.childNodeRpc, 'Elysium', 'eth_getBalance', [acct, 'latest']).catch(() => null) : null,
+  ]);
+  if (acct === state.account) {
+    state.l2Balance = BigInt(bal);
+    state.l2Settled = settled == null ? null : BigInt(settled);
+  }
+}
+
+/* ---------- wallet ---------- */
+async function ensureChain() {
+  const p = provider();
+  const id = await p.request({ method: 'eth_chainId' });
+  if (parseInt(id, 16) !== CFG.parentChainId) {
+    try {
+      await p.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x3e7' }] });
+    } catch (e) {
+      if (e.code !== 4902) throw e;
+      await p.request({ method: 'wallet_addEthereumChain', params: [{
+        chainId: '0x3e7', chainName: 'HyperEVM', nativeCurrency: { name: 'HYPE', symbol: 'HYPE', decimals: 18 },
+        rpcUrls: [CFG.rpc], blockExplorerUrls: [CFG.explorer],
+      }] });
+    }
+  }
+  state.walletChainId = parseInt(await p.request({ method: 'eth_chainId' }), 16);
+}
+async function refreshWallet() {
+  const acct = state.account;
+  if (!acct) return;
+  const [bal, code] = await Promise.all([rpc('eth_getBalance', [acct, 'latest']), rpc('eth_getCode', [acct, 'latest'])]);
+  if (acct !== state.account) return;
+  state.balance = BigInt(bal);
+  state.hasCode = !!code && code !== '0x';
+  renderAll();
+  await refreshL2Balance().catch(() => {});
+  renderAll();
+}
+function setAccount(acct) {
+  state.account = acct ? acct.toLowerCase() : null;
+  state.balance = null;
+  state.l2Balance = null;
+  state.l2Settled = null;
+  state.hasCode = false;
+  renderAll();
+  refreshWallet().catch(() => {});
+}
+function connect() {
+  const choices = walletChoices();
+  if (!choices.length) return toast('No browser wallet found. Open this page in a browser with Rabby or MetaMask.');
+  if (choices.length === 1) return connectWith(choices[0]);
+  openModal('wallets');
+}
+let connecting = null;
+async function connectWith(choice) {
+  connecting = choice.info.rdns;
+  if (modalKind === 'wallets') renderWallets();
+  try {
+    const [acct] = await choice.provider.request({ method: 'eth_requestAccounts' });
+    store('ely-autoconnect', '1');
+    store('ely-wallet', choice.info.rdns);
+    useWallet(choice);
+    state.walletChainId = parseInt(await choice.provider.request({ method: 'eth_chainId' }), 16);
+    setAccount(acct);
+    if (modalKind === 'wallets') closeModal();
+  } catch (e) {
+    if (e.code !== 4001) toast(e.message || String(e));
+  } finally {
+    connecting = null;
+    if (modalKind === 'wallets') renderWallets();
+  }
+}
+// Elysium as a wallet should add it: the Kleos RPC first (before launch, the relay, which can send as well as read).
+const elysiumParams = () => ({
+  chainId: '0x' + CFG.childChainId.toString(16), chainName: 'Elysium (Kleos)',
+  nativeCurrency: { name: 'HYPE', symbol: 'HYPE', decimals: 18 }, rpcUrls: [CFG.walletRpc],
+});
+async function addElysium() {
+  const p = provider();
+  if (!p) return connect();
+  try {
+    await p.request({ method: 'wallet_addEthereumChain', params: [elysiumParams()] });
+    toast('Elysium is in your wallet', 'ok');
+    state.walletChainId = parseInt(await p.request({ method: 'eth_chainId' }), 16);
+    renderAll();
+  } catch (e) {
+    if (e.code !== 4001) toast(e.message || String(e));
+  }
+}
+async function ensureChildChain() {
+  const p = provider();
+  const id = await p.request({ method: 'eth_chainId' });
+  if (BigInt(id) !== CFG.childChainId) {
+    const chainId = '0x' + CFG.childChainId.toString(16);
+    try {
+      await p.request({ method: 'wallet_switchEthereumChain', params: [{ chainId }] });
+    } catch (e) {
+      if (e.code !== 4902) throw e;
+      await p.request({ method: 'wallet_addEthereumChain', params: [elysiumParams()] });
+    }
+  }
+  state.walletChainId = parseInt(await p.request({ method: 'eth_chainId' }), 16);
+}
+async function switchChain() {
+  try { if (withdrawing()) await ensureChildChain(); else await ensureChain(); renderAll(); }
+  catch (e) { if (e.code !== 4001) toast(e.message || String(e)); }
+}
+async function disconnect() {
+  closeMenu();
+  try { await provider()?.request({ method: 'wallet_revokePermissions', params: [{ eth_accounts: {} }] }); } catch {}
+  store('ely-autoconnect', '0');
+  state.wallet = null;
+  setAccount(null);
+}
+const attached = new WeakSet();
+function useWallet(choice) {
+  state.wallet = choice;
+  const p = choice.provider;
+  if (attached.has(p)) return;
+  attached.add(p);
+  p.on?.('accountsChanged', (accts) => { if (provider() === p) setAccount(accts[0]); });
+  p.on?.('chainChanged', (id) => { if (provider() === p) { state.walletChainId = parseInt(id, 16); renderAll(); } });
+}
+// The wallet to reconnect without asking: the one picked here last, else the one Kleos connected (same origin, so
+// wagmi's choice is readable), else the only one there is. It reconnects only if it already gave this site access.
+function preferredWallet() {
+  let app = null;
+  try { app = JSON.parse(recall('wagmi.recentConnectorId') || 'null'); } catch {}
+  const choices = walletChoices();
+  return choices.find((c) => c.info.rdns === recall('ely-wallet'))
+    || choices.find((c) => c.info.rdns === app)
+    || (choices.length === 1 ? choices[0] : null);
+}
+let reconnecting = false;
+function autoConnect() {
+  if (state.wallet || reconnecting || recall('ely-autoconnect') === '0') return;
+  const choice = preferredWallet();
+  if (!choice) return;
+  reconnecting = true;
+  choice.provider.request({ method: 'eth_accounts' }).then(async (accts) => {
+    if (!accts[0] || state.wallet) return;
+    useWallet(choice);
+    state.walletChainId = parseInt(await choice.provider.request({ method: 'eth_chainId' }), 16);
+    setAccount(accts[0]);
+  }).catch(() => {}).finally(() => { reconnecting = false; });
+}
+// EIP-6963: wallets answer a request with an announcement. A wallet in both this frame and the page around it is
+// kept once, from this frame (it announces first).
+let announceTimer = null;
+function onAnnounce(e) {
+  const d = e.detail;
+  if (!d?.provider || !d.info) return;
+  const key = d.info.rdns || d.info.uuid;
+  if (!announced.has(key)) announced.set(key, { info: { ...d.info, rdns: key }, provider: d.provider });
+  clearTimeout(announceTimer);
+  announceTimer = setTimeout(() => {
+    autoConnect();
+    renderAll();
+    if (modalKind === 'wallets') renderWallets();
+  }, 250);
+}
+function listenForWallets(frame) {
+  try {
+    frame.addEventListener('eip6963:announceProvider', onAnnounce);
+    frame.dispatchEvent(new frame.Event('eip6963:requestProvider'));
+  } catch {}
+}
+
+/* ---------- deposits store ---------- */
+function loadDeposits() { try { return JSON.parse(localStorage.getItem(STORE)) || []; } catch { return []; } }
+function saveDeposits(list) { try { localStorage.setItem(STORE, JSON.stringify(list)); } catch {} }
+function addDeposit(d) {
+  const list = loadDeposits().filter((x) => !same(x.hash, d.hash));
+  list.unshift(d);
+  saveDeposits(list);
+  state.deposits = list;
+}
+function forgetDeposit(hash) {
+  const list = loadDeposits().filter((x) => !same(x.hash, hash));
+  saveDeposits(list);
+  state.deposits = list;
+  renderAll();
+}
+function updateDeposit(hash, patch) {
+  const list = loadDeposits();
+  const d = list.find((x) => same(x.hash, hash));
+  if (d) Object.assign(d, patch);
+  saveDeposits(list);
+  state.deposits = list;
+}
+async function parseDepositReceipt(r) {
+  if (r.status !== '0x1') return { failed: 'Transaction reverted on HyperEVM.' };
+  const log = r.logs.find((l) => same(l.address, CFG.bridge) && l.topics[0] === MESSAGE_DELIVERED);
+  if (!log) return { failed: 'No bridge message in this transaction.' };
+  const words = log.data.slice(2).match(/.{64}/g);
+  const kind = BigInt('0x' + words[1]);
+  if (!same('0x' + words[0].slice(24), CFG.inbox) || (kind !== ETH_DEPOSIT_KIND && kind !== RETRYABLE_KIND)) {
+    return { failed: 'Not a deposit through the expected inbox.' };
+  }
+  const out = { messageIndex: BigInt(log.topics[1]).toString() };
+  if (state.chain) out.readAt = state.chain.read.toString();
+  const block = await rpc('eth_getBlockByNumber', [r.blockNumber, false]).catch(() => null);
+  if (block) out.minedAt = parseInt(block.timestamp, 16) * 1000;
+  return out;
+}
+/* ---------- withdrawals: proof and claim ---------- */
+// What Outbox.executeTransaction needs, from the withdrawal's L2ToL1Tx event on Elysium. Numbers as decimal strings.
+function parseWithdrawal(r) {
+  const log = r.logs.find((l) => same(l.address, CFG.arbSys) && l.topics[0] === L2_TO_L1_TX);
+  if (!log) return null;
+  const w = words(log.data);
+  const at = Number(BigInt('0x' + w[5])) / 32;
+  const len = Number(BigInt('0x' + w[at]));
+  const num = (x) => BigInt('0x' + x).toString();
+  return {
+    position: BigInt(log.topics[3]).toString(), caller: '0x' + w[0].slice(24), destination: '0x' + log.topics[1].slice(26),
+    arbBlockNum: num(w[1]), ethBlockNum: num(w[2]), timestamp: num(w[3]), callvalue: num(w[4]),
+    data: '0x' + w.slice(at + 1).join('').slice(0, len * 2),
+  };
+}
+// An assertion: a checkpoint of Elysium's state the validator posts on HyperEVM. The rollup keeps only its hash and
+// when it was posted (`createdAtBlock`), so the Elysium block it ends at, its send root and its parent come from the
+// AssertionCreated event in that block. None of it changes once posted, so it's cached.
+const assertions = new Map();
+async function assertionInfo(hash) {
+  if (assertions.has(hash)) return assertions.get(hash);
+  const createdAt = BigInt('0x' + words(await call(CFG.rollup, SEL.getAssertion + hash.slice(2)))[2]);
+  const at = hexQty(createdAt);
+  const logs = await rpc('eth_getLogs', [{ address: CFG.rollup, topics: [ASSERTION_CREATED, hash], fromBlock: at, toBlock: at }]);
+  const w = logs[0] ? words(logs[0].data) : [];
+  if (w.length < 15) throw new Error("Couldn't read an Elysium checkpoint.");
+  const blockHash = '0x' + w[13], sendRoot = '0x' + w[14];
+  const block = await childRpc('eth_getBlockByHash', [blockHash, false]);
+  if (!block || !same(block.sendRoot, sendRoot)) throw new Error("The Elysium node doesn't agree with the rollup's checkpoint.");
+  const info = { hash, createdAt, parent: logs[0].topics[2], l2Block: Number(BigInt(block.number)), sendCount: BigInt(block.sendCount), sendRoot };
+  assertions.set(hash, info);
+  return info;
+}
+// Elysium's latest confirmed state: withdrawals numbered below its send count can be claimed.
+const readConfirmed = async () => assertionInfo(await call(CFG.rollup, SEL.latestConfirmed));
+// HyperEVM's milliseconds per block, over its last 50,000 blocks; refreshed hourly.
+let blockSpeed = null;
+async function blockMs(head) {
+  if (blockSpeed && Date.now() - blockSpeed.at < 3600e3) return blockSpeed.ms;
+  const back = 50_000n;
+  const [a, b] = await Promise.all([rpc('eth_getBlockByNumber', [hexQty(head), false]), rpc('eth_getBlockByNumber', [hexQty(head - back), false])]);
+  blockSpeed = { at: Date.now(), ms: (Number(BigInt(a.timestamp) - BigInt(b.timestamp)) * 1000) / Number(back) };
+  return blockSpeed.ms;
+}
+// When withdrawals become claimable: the newest checkpoint any validator has posted, how far apart they come, and the
+// challenge period every checkpoint waits out before it's final, all in HyperEVM blocks.
+async function readTimeline() {
+  const [validators, period, headHex] = await Promise.all([
+    call(CFG.rollup, SEL.getValidators), call(CFG.rollup, SEL.confirmPeriodBlocks), rpc('eth_blockNumber'),
+  ]);
+  const head = BigInt(headHex);
+  const w = words(validators);
+  let latest = null;
+  for (let i = 0; i < Number(BigInt('0x' + w[1])); i++) {
+    const h = await call(CFG.rollup, SEL.latestStakedAssertion + w[2 + i]);
+    if (/^0x0+$/.test(h)) continue;
+    const info = await assertionInfo(h);
+    if (!latest || info.createdAt > latest.createdAt) latest = info;
+  }
+  if (!latest) throw new Error('No checkpoint on HyperEVM yet.');
+  const parent = await assertionInfo(latest.parent).catch(() => null);
+  return {
+    latest, head, period: BigInt(period), blockMs: await blockMs(head),
+    cadence: parent && latest.createdAt > parent.createdAt ? latest.createdAt - parent.createdAt : 43_200n,
+  };
+}
+// The first checkpoint that covers a withdrawal's Elysium block (its challenge period ends first), or null before one.
+async function checkpointFor(d, t) {
+  const target = Number(d.out.arbBlockNum);
+  if (t.latest.l2Block < target) return null;
+  let cover = t.latest;
+  for (let i = 0; i < 40; i++) {
+    const p = await assertionInfo(cover.parent).catch(() => null);
+    if (!p || p.l2Block < target) break;
+    cover = p;
+  }
+  return cover;
+}
+// When a withdrawal can be claimed, estimated from the timeline: its checkpoint's challenge period, or for one still
+// waiting, the next checkpoint's.
+function claimEta(d) {
+  const t = state.timeline;
+  if (!t) return null;
+  const when = (blocks) => Date.now() + Math.max(0, Number(blocks)) * t.blockMs;
+  if (d.checkpointAt) {
+    const at = BigInt(d.checkpointAt);
+    return { posted: true, postedAt: Date.now() - Number(t.head - at) * t.blockMs, at: when(at + t.period - t.head), progress: Number(t.head - at) / Number(t.period) };
+  }
+  let next = t.latest.createdAt + t.cadence;
+  if (next < t.head) next = t.head;
+  return { posted: false, next: when(next - t.head), at: when(next + t.period - t.head) };
+}
+// How long ago the newest checkpoint was posted, in ms.
+const checkpointAge = (t) => Number(t.head - t.latest.createdAt) * t.blockMs;
+function dur(ms) {
+  const h = ms / 3600e3;
+  if (h < 1) return `${Math.max(1, Math.round(ms / 60e3))} min`;
+  if (h < 48) return `${Math.round(h)}h`;
+  return `${Number((h / 24).toFixed(1))} days`;
+}
+const isSpent = async (position) => BigInt(await call(CFG.outbox, SEL.isSpent + word(position))) === 1n;
+// The withdrawal's Merkle proof against the confirmed send root, from Elysium's NodeInterface.
+async function outboxProof(o, conf) {
+  const out = await childRpc('eth_call', [{ to: CFG.nodeInterface, data: SEL.constructOutboxProof + word(conf.sendCount) + word(o.position) }, 'latest']);
+  const w = words(out); // send, root, offset, length, proof…
+  if (!same('0x' + w[1], conf.sendRoot)) throw new Error("The proof doesn't match Elysium's confirmed send root.");
+  return w.slice(4, 4 + Number(BigInt('0x' + w[3]))).map((x) => '0x' + x);
+}
+// executeTransaction(bytes32[] proof, uint256 index, address l2Sender, address to, uint256 l2Block, uint256 l1Block,
+// uint256 l2Timestamp, uint256 value, bytes data)
+function encodeExecute(proof, o) {
+  const data = o.data.slice(2);
+  const head = [word(9 * 32), word(o.position), addrWord(o.caller), addrWord(o.destination), word(o.arbBlockNum),
+    word(o.ethBlockNum), word(o.timestamp), word(o.callvalue), word(9 * 32 + 32 * (1 + proof.length))];
+  const tail = [word(proof.length), ...proof.map((p) => p.slice(2)), word(data.length / 2), data.padEnd(Math.ceil(data.length / 64) * 64, '0')];
+  return SEL.executeTransaction + head.join('') + tail.join('');
+}
+// Through the relay a withdrawal's receipt only comes with the batch, hours later, so meanwhile the page checks that it
+// really reached Elysium: the relay holds or posted it, or Elysium's inbox has it (KleosScan). A wallet whose Elysium
+// network uses another RPC sends it there instead, and nothing posts it: on 2026-10-29 one sat at "On Elysium" for 8 hours.
+const ARRIVAL_GRACE_MS = 10 * 60 * 1000;
+async function whereIs(hash) {
+  const res = await fetch(`/api/scan?path=/tx/${hash}`).catch(() => null);
+  if (res?.ok) {
+    const body = await res.json().catch(() => null);
+    // `landing`: its batch has just landed and our node hasn't run it yet.
+    if (body?.pending || body?.landing) return { where: 'inbox' };
+    if (body?.tx) return { where: 'chain' };
+    // It reached the inbox, its batch ran, and Elysium skipped it (KleosScan knows why).
+    if (body?.skipped) {
+      const k = body.skipped;
+      return { where: 'skipped', skip: { batch: k.batch, reason: k.reason, nonce: k.nonce, chainNonce: k.chainNonce } };
+    }
+  }
+  // Not in the inbox yet: the relay may still hold it (for its wallet to send, or for its next post).
+  const atRelay = await rpcAt(relayUrl(), 'Kleos relay', 'eth_getTransactionByHash', [hash]).catch(() => undefined);
+  if (atRelay) return { where: 'relay' };
+  // Lost only when both answered that they don't have it: one that couldn't be asked says nothing.
+  return atRelay === null && res?.status === 404 ? { where: 'lost' } : null;
+}
+async function refreshWithdrawals(list) {
+  let changed = false;
+  for (const d of list) {
+    if (d.kind !== 'withdraw' || d.failed || d.out) continue;
+    const r = await childRpc('eth_getTransactionReceipt', [d.hash]).catch(() => null);
+    if (!r) {
+      if (d.via === 'relay' && Date.now() - d.sentAt > ARRIVAL_GRACE_MS) {
+        const found = await whereIs(d.hash);
+        if (found && found.where !== d.where) {
+          d.where = found.where;
+          d.skip = found.skip;
+          changed = true;
+        }
+      }
+      continue;
+    }
+    if (r.status !== '0x1') d.failed = 'Reverted on Elysium';
+    else {
+      d.confirmed = true;
+      d.out = parseWithdrawal(r);
+      if (!d.out) d.failed = 'No withdrawal in this Elysium transaction.';
+    }
+    changed = true;
+  }
+  const open = list.filter((d) => d.kind === 'withdraw' && d.out && !d.claimed && !d.failed);
+  if (!open.length) return changed;
+  const conf = await readConfirmed().catch(() => null);
+  if (conf) state.confirmed = conf;
+  for (const d of open) {
+    if (!d.checkpointAt && state.timeline) {
+      const cover = await checkpointFor(d, state.timeline).catch(() => null);
+      if (cover) {
+        d.checkpointAt = cover.createdAt.toString();
+        changed = true;
+      }
+    }
+    const ready = !!state.confirmed && BigInt(d.out.position) < state.confirmed.sendCount;
+    if (ready && await isSpent(d.out.position).catch(() => false)) {
+      d.claimed = true;
+      changed = true;
+      toast(`${fmtHype(BigInt(d.wei))} HYPE claimed on HyperEVM`, 'ok');
+    } else if (ready !== !!d.claimable) {
+      d.claimable = ready;
+      changed = true;
+    }
+  }
+  return changed;
+}
+async function refreshDeposits() {
+  const list = loadDeposits();
+  let changed = await refreshWithdrawals(list);
+  for (const d of list) {
+    if (d.kind === 'withdraw') continue;
+    if (d.failed || d.messageIndex != null) continue;
+    const r = await rpc('eth_getTransactionReceipt', [d.hash]).catch(() => null);
+    if (!r) continue;
+    Object.assign(d, await parseDepositReceipt(r));
+    changed = true;
+  }
+  const read = state.chain?.read;
+  if (read != null) {
+    for (const d of list) {
+      if (d.messageIndex != null && !d.credited && read > BigInt(d.messageIndex)) {
+        d.credited = Date.now();
+        changed = true;
+        toast(`${fmtHype(BigInt(d.wei))} HYPE credited on Elysium`, 'ok');
+      }
+    }
+  }
+  if (changed) saveDeposits(list);
+  state.deposits = list;
+}
+async function waitForReceipt(hash, timeoutMs = 120000, read = rpc) {
+  const end = Date.now() + timeoutMs;
+  while (Date.now() < end) {
+    const r = await read('eth_getTransactionReceipt', [hash]).catch(() => null);
+    if (r) return r;
+    await new Promise((ok) => setTimeout(ok, 2000));
+  }
+  return null;
+}
+async function trackHash() {
+  const input = $('track-hash');
+  const hash = input.value.trim();
+  if (!/^0x[0-9a-fA-F]{64}$/.test(hash)) return toast("That isn't a transaction hash.");
+  const btn = $('track');
+  btn.disabled = true;
+  try {
+    const tx = await rpc('eth_getTransactionByHash', [hash]);
+    if (tx) {
+      if (!same(tx.to, CFG.inbox)) throw new Error("That transaction didn't go to the Elysium inbox.");
+      addDeposit({ hash, from: tx.from.toLowerCase(), wei: BigInt(tx.value).toString(), sentAt: Date.now() });
+    } else {
+      // Not on HyperEVM: a withdrawal on Elysium, perhaps sent from somewhere else, can be claimed here too.
+      const r = await childRpc('eth_getTransactionReceipt', [hash]).catch(() => null);
+      const out = r?.status === '0x1' ? parseWithdrawal(r) : null;
+      if (!out) throw new Error('Not found as a deposit on HyperEVM or as a withdrawal on Elysium.');
+      addDeposit({ hash, kind: 'withdraw', from: r.from.toLowerCase(), wei: out.callvalue, sentAt: Number(out.timestamp) * 1000, confirmed: true, out });
+    }
+    input.value = '';
+    await refreshDeposits();
+    renderAll();
+  } catch (e) {
+    toast(e.message || String(e));
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+/* ---------- bridge form ---------- */
+const amountInput = $('amount');
+function amountWei() { return parseHype(amountInput.value); }
+function sanitizeAmount(s) {
+  s = s.replace(/,/g, '.').replace(/[^\d.]/g, '');
+  const i = s.indexOf('.');
+  if (i !== -1) s = s.slice(0, i + 1) + s.slice(i + 1).replace(/\./g, '').slice(0, 18);
+  if (s.startsWith('.')) s = '0' + s;
+  return s.replace(/^0+(?=\d)/, '');
+}
+const withdrawing = () => state.dir === 'withdraw';
+const sequencerLive = (child = state.child) =>
+  Date.now() >= CFG.publicLaunchMs && !!child?.ok && Date.now() - child.blockTime < CFG.liveBlockAgeMs;
+// How a withdrawal reaches Elysium: through its sequencer once that's live, before that through the Kleos relay, which
+// posts the signed transaction into Elysium's inbox to run with the next batch.
+function withdrawRoute(child = state.child) {
+  if (sequencerLive(child)) return 'sequencer';
+  if (child?.ok && state.relay?.ok) return 'relay';
+  return null;
+}
+const relayUrl = () => CFG.childRpcs.find((n) => n.relay).url;
+const wantedChainId = () => withdrawing() ? Number(CFG.childChainId) : CFG.parentChainId;
+function sourceBalance() { return withdrawing() ? state.l2Balance : state.balance; }
+function setPct(pct) {
+  const bal = sourceBalance();
+  if (bal == null) return;
+  let spendable = bal - bufferWei();
+  if (spendable < 0n) spendable = 0n;
+  let wei = pct === 100 ? spendable : spendable * BigInt(pct) / 100n;
+  if (wei > capWei()) wei = capWei();
+  amountInput.value = wei > 0n ? weiToInput(wei) : '';
+  renderAll();
+}
+function ctaState() {
+  if (!state.chain) {
+    return state.chainError ? { label: "Can't reach HyperEVM", tone: 'bad' } : { label: 'Checking route', busy: true };
+  }
+  if (!state.chain.ok) return { label: 'Route check failed', tone: 'bad', hint: 'An on-chain check failed, so this is blocked. Open Route details to see which one.' };
+  if (withdrawing() && state.child && !state.child.ok) return { label: 'Elysium node unverified', tone: 'bad', hint: 'The node that reads your Elysium balance failed its check, so a withdrawal will not be sent.' };
+  if (withdrawing() && state.child && !withdrawRoute()) return { label: 'Withdrawals unavailable', tone: 'bad', hint: Date.now() < CFG.publicLaunchMs
+    ? "Until Elysium's launch on November 9, withdrawals go through the Kleos relay, and it isn't answering right now. Deposits work."
+    : `Elysium's latest block is ${ago(state.child.blockTime).replace(' ago', ' old')}, so its sequencer doesn't look live; a withdrawal could sit unsent.` };
+  if (!state.account && !walletChoices().length) return { label: 'No wallet detected', hint: 'On a phone, open Kleos in the MetaMask or Rabby browser. A normal mobile browser has no wallet.' };
+  if (!state.account) return { label: 'Connect wallet', run: connect };
+  if (state.walletChainId !== wantedChainId()) return { label: withdrawing() ? 'Switch to Elysium' : 'Switch to HyperEVM', run: switchChain };
+  if (!withdrawing() && state.hasCode) return { label: 'Smart wallets not supported', tone: 'bad', hint: 'This address has contract code (a Safe, smart wallet or EIP-7702 delegation). The inbox would credit an aliased address on Elysium you may not control. Use a plain burner wallet.' };
+  const raw = amountInput.value.trim();
+  const wei = amountWei();
+  if (!raw || wei === 0n) return { label: 'Enter an amount' };
+  if (wei === null) return { label: 'Invalid amount', tone: 'bad' };
+  if (wei > capWei()) return { label: `Max ${CFG.maxHype} HYPE`, tone: 'bad', hint: 'The cap is set in CFG.maxHype in the bridge page.' };
+  if (!withdrawing() && state.chain.baseFee != null && !depositSplit(wei)) return { label: 'Amount too small', tone: 'bad', hint: "It doesn't cover the 1% fee and the deposit ticket's costs." };
+  const bal = sourceBalance();
+  if (bal == null) return { label: 'Loading balance', busy: true };
+  if (wei + bufferWei() > bal) return { label: 'Insufficient HYPE', tone: 'bad', hint: `Keep about ${CFG.gasBufferHype} HYPE for gas.` };
+  if (aheadOfChain(wei)) return { label: 'Review withdrawal', run: openReview, tone: 'warn', hint: aheadOfChainNote() };
+  return { label: withdrawing() ? 'Review withdrawal' : 'Review deposit', run: openReview };
+}
+// A withdrawal of more than the wallet holds on Elysium now counts on transactions still waiting for the batch (a sell,
+// a deposit). If one of them doesn't go through, Elysium skips the withdrawal when its turn comes.
+function aheadOfChain(wei) {
+  return withdrawing() && state.l2Settled != null && wei + bufferWei() > state.l2Settled;
+}
+function aheadOfChainNote() {
+  return `You have ${fmtHype(state.l2Settled)} HYPE on Elysium now; the rest comes from transactions still waiting for the batch. If one of them doesn't go through, Elysium skips this withdrawal: nothing leaves your wallet, and you can withdraw again after the batch.`;
+}
+
+/* ---------- rendering ---------- */
+function renderAll() {
+  renderTheme();
+  renderWallet();
+  renderTvl();
+  renderStatus();
+  renderBridge();
+  renderTimeline();
+  renderActivity();
+  if ($('modal').open && modalKind === 'about') renderAbout();
+}
+// HYPE bridged through this page (GET /api/bridge-volume), in dollars at HYPE's price.
+const compactUsd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', notation: 'compact', maximumFractionDigits: 2 });
+async function refreshVolume() {
+  const res = await fetch('/api/bridge-volume', { cache: 'no-store' });
+  if (!res.ok) return;
+  const v = await res.json();
+  if (typeof v.hype === 'number' && typeof v.deposits === 'number') state.volume = v;
+}
+function renderTvl() {
+  const v = state.volume;
+  if (!v) return;
+  const pill = (id, hype, count, noun) => {
+    $(id).hidden = false;
+    $(`${id}-hype`).textContent = hype.toLocaleString('en-US', { maximumFractionDigits: 2 });
+    $(`${id}-usd`).textContent = state.price == null ? '' : `≈ ${compactUsd.format(hype * state.price)}`;
+    $(`${id}-count`).textContent = `· ${count.toLocaleString('en-US')} ${noun}${count === 1 ? '' : 's'}`;
+  };
+  pill('tvl', v.hype, v.deposits, 'deposit');
+  // Withdrawals, when Elysium could be read.
+  if (typeof v.out?.hype === 'number' && typeof v.out.withdrawals === 'number') pill('tvl-out', v.out.hype, v.out.withdrawals, 'withdrawal');
+}
+function renderTheme() {
+  const theme = document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  $('theme').replaceChildren(icon(theme === 'dark' ? 'sun' : 'moon'));
+  $('theme').dataset.current = theme;
+}
+function renderWallet() {
+  const slot = $('wallet-slot');
+  if (!state.account) {
+    slot.replaceChildren(el('button', { class: 'btn btn-accent', onclick: connect, text: 'Connect' }));
+    return;
+  }
+  if (state.walletChainId !== wantedChainId()) {
+    slot.replaceChildren(el('button', { class: 'btn btn-bad', onclick: switchChain }, icon('alert'), 'Wrong network'));
+    return;
+  }
+  slot.replaceChildren(el('button', { class: 'btn btn-ghost wallet-pill', onclick: toggleMenu, 'aria-haspopup': 'menu' },
+    avatar(state.account), el('span', { class: 'mono', text: short(state.account) }), icon('chev')));
+  if (!$('menu').hidden) renderMenu();
+}
+function renderMenu() {
+  const m = $('menu');
+  m.replaceChildren(
+    el('div', { class: 'menu-head' },
+      el('div', { class: 'muted', text: 'HyperEVM balance' }),
+      el('b', { class: 'num', text: state.balance == null ? '…' : `${fmtHype(state.balance)} HYPE` }),
+      el('div', { class: 'muted num', text: state.balance == null ? '' : usd(state.balance) }),
+      el('div', { class: 'muted', style: 'margin-top:10px', text: `Elysium balance · via ${childNode().name}${childNode().thirdParty ? ' (third-party)' : ''}` }),
+      el('div', { class: 'num', text: state.child && !state.child.ok ? 'Unavailable: RPC failed verification'
+        : state.l2Balance == null ? '…' : `${fmtHype(state.l2Balance)} HYPE · ${usd(state.l2Balance)}` })),
+    el('button', { onclick: () => { copy(state.account, 'Address copied'); closeMenu(); } }, icon('copy'), 'Copy address'),
+    el('button', { onclick: () => { closeMenu(); openModal('network'); } }, icon('plus'), 'Add Elysium to wallet'),
+    el('a', { href: explorerAddr(state.account), target: '_blank', rel: 'noopener' }, icon('ext'), 'View on HyperEVMScan'),
+    el('button', { class: 'danger', onclick: disconnect }, icon('out'), 'Disconnect'),
+  );
+}
+function toggleMenu(e) {
+  e.stopPropagation();
+  const m = $('menu');
+  m.hidden = !m.hidden;
+  if (!m.hidden) renderMenu();
+}
+function closeMenu() { $('menu').hidden = true; }
+
+function renderStatus() {
+  const s = $('status');
+  s.className = 'status';
+  if (!state.chain) {
+    s.classList.toggle('bad', !!state.chainError);
+    $('status-text').textContent = state.chainError ? 'RPC unreachable' : 'Checking route';
+  } else if (state.chain.ok) {
+    s.classList.add('ok');
+    $('status-text').textContent = `Route verified · ${state.chain.checks.length}/${state.chain.checks.length}`;
+  } else {
+    s.classList.add('bad');
+    const passed = state.chain.checks.filter(([, ok]) => ok).length;
+    $('status-text').textContent = `Route check failed · ${passed}/${state.chain.checks.length}`;
+  }
+}
+function renderBridge() {
+  const wei = amountWei();
+  const len = amountInput.value.length;
+  const out = withdrawing();
+  amountInput.classList.toggle('sm', len > 11 && len <= 15);
+  amountInput.classList.toggle('xs', len > 15);
+  $('card-title').textContent = out ? 'Withdraw' : 'Deposit';
+  $('flip').classList.toggle('up', out);
+  $('flip').title = out ? 'Switch to deposit' : 'Withdraw to HyperEVM';
+  $('from-chain').replaceChildren(icon(out ? 'elysium' : 'hyperevm'), out ? 'Elysium' : 'HyperEVM', out ? el('span', { class: 'tag', text: 'Pre-launch' }) : '');
+  $('to-chain').replaceChildren(icon(out ? 'hyperevm' : 'elysium'), out ? 'HyperEVM' : 'Elysium', out ? '' : el('span', { class: 'tag', text: 'Pre-launch' }));
+  $('route-value').replaceChildren(out ? 'ArbSys ' : 'Canonical inbox ', el('span', { class: 'sub', text: out ? '· withdrawEth via Multicall3' : '· ticket via Multicall3' }));
+  const newEta = out ? newWithdrawalEta() : null;
+  $('arrival-value').replaceChildren(out ? 'Claim on HyperEVM ' : 'Next sequencer batch ',
+    el('span', { class: 'sub', text: out ? (newEta ? `· around ${fmtDate(newEta)}` : '· after ~6 days') : ' · ~3h' }));
+  $('queue-label').replaceChildren(icon(out ? 'clock' : 'inbox'), out ? 'Where it starts' : 'Inbox queue');
+  const src = sourceBalance();
+  $('bal').textContent = state.account ? (src == null ? '…' : fmtHype(src)) : '—';
+  for (const c of document.querySelectorAll('.chip')) c.disabled = src == null;
+  const valid = wei != null && wei > 0n;
+  // A deposit arrives less the 1% fee and the ticket's costs (Elysium refunds the unused part of those); a withdrawal
+  // less its 2% fee.
+  const split = out ? withdrawSplit(wei) : depositSplit(wei);
+  const arrives = split?.pays ?? null;
+  $('usd-from').textContent = valid ? usd(wei) : '$0.00';
+  $('usd-to').textContent = valid && arrives != null ? usd(arrives) : '$0.00';
+  const recv = $('receive');
+  recv.textContent = valid ? (arrives != null ? fmtHype(arrives, out ? 18 : 6) : '—') : '0';
+  recv.classList.toggle('empty', !valid);
+  recv.classList.toggle('sm', len > 11 && len <= 15);
+  recv.classList.toggle('xs', len > 15);
+  renderL2Balance();
+  const gasPrice = out ? state.childGasPrice : state.gasPrice;
+  const gasUnits = out ? CFG.withdrawGas : CFG.depositGas;
+  const fee = gasPrice != null ? gasUnits * gasPrice : null;
+  $('fee').textContent = fee == null ? '—' : `~${fmtSmallHype(fee)} HYPE`;
+  const feeBps = out ? CFG.withdrawFeeBps : CFG.feeBps;
+  $('bridge-fee').replaceChildren(`${Number(feeBps) / 100}%${valid ? ` · ${fmtSmallHype((wei * feeBps) / 10000n)} HYPE` : ''}`);
+  if (fee != null && state.price != null) $('fee').append(el('span', { class: 'sub', text: ` · ${usd(fee)}` }));
+  if (out) {
+    const relayed = withdrawRoute() === 'relay';
+    $('queue').textContent = relayed ? "Elysium's inbox" : 'Elysium';
+    $('queue').append(el('span', { class: 'sub', text: relayed ? ' · via the Kleos relay' : ` · via ${childNode().name}` }));
+  } else {
+    $('queue').textContent = state.chain ? `${(state.chain.delayed - state.chain.read).toString()} waiting` : '—';
+    if (state.chain) $('queue').append(el('span', { class: 'sub', text: ` · ${state.chain.batches} batches so far` }));
+  }
+
+  const c = ctaState();
+  const btn = $('cta');
+  btn.replaceChildren(...(c.busy ? [spinner()] : []), c.label);
+  btn.disabled = !c.run;
+  btn.classList.toggle('bad', c.tone === 'bad');
+  btn.onclick = c.run || null;
+  const hint = $('cta-hint');
+  hint.textContent = c.hint || (!withdrawing()
+    ? `Up to ${CFG.maxHype} HYPE per deposit · ${Number(CFG.feeBps) / 100}% bridge fee · plain wallets (EOAs) only`
+    : withdrawRoute() === 'relay'
+      ? `Up to ${CFG.maxHype} HYPE · ${Number(CFG.withdrawFeeBps) / 100}% bridge fee · runs with the next batch, sent through the Kleos relay`
+      : `Up to ${CFG.maxHype} HYPE · ${Number(CFG.withdrawFeeBps) / 100}% bridge fee · sent on Elysium through ${childNode().name}`);
+  hint.classList.toggle('bad', !!c.hint && c.tone === 'bad');
+  hint.classList.toggle('warn', !!c.hint && c.tone === 'warn');
+  renderCustody();
+}
+// Where the HYPE sits and who can move it, under the button, from the live read of the upgrade role.
+function renderCustody() {
+  const c = state.control;
+  const where = "Your HYPE is held by Elysium's bridge contract, not Kleos.";
+  const text = !c ? `${where} Whoever holds its upgrade keys controls every deposit.`
+    : c.safeHolds ? `${where} A ${c.threshold}-of-${c.owners} multisig can upgrade that contract at any time, with no delay.`
+    : `${where} Its upgrade keys have moved since ${CFG.controlCheckedOn}; check who holds them before you deposit.`;
+  const p = $('custody');
+  p.classList.toggle('bad', !!c && !c.safeHolds);
+  p.replaceChildren(text + ' ', el('button', { class: 'link', onclick: () => openModal('about'), text: 'Who controls it' }));
+}
+
+function childSource() {
+  const c = state.child;
+  const bad = !!c && !c.ok;
+  return el('button', {
+    class: bad ? 'src bad' : 'src', onclick: () => openModal('about'),
+    title: bad ? `${childNode().name}'s RPC failed verification, so it isn't used.`
+      : `Read from ${childNode().owner}, checked against Elysium's chain ID and genesis hash.`,
+  }, bad ? 'RPC unverified' : `via ${childNode().name}`);
+}
+function renderL2Balance() {
+  const slot = $('l2bal');
+  if (!state.account) return slot.replaceChildren('To your wallet address');
+  if (withdrawing()) {
+    const value = state.balance == null ? '…' : fmtHype(state.balance);
+    return slot.replaceChildren('Balance ', el('span', { class: 'num', text: value }));
+  }
+  if (state.child && !state.child.ok) return slot.replaceChildren('Balance —', childSource());
+  const value = !state.child || state.l2Balance == null ? '…' : fmtHype(state.l2Balance);
+  slot.replaceChildren('Balance ', el('span', { class: 'num', text: value }), childSource());
+}
+function stepsView(labels, { done, active, progress, failed }) {
+  return el('div', { class: 'steps', style: `grid-template-columns: repeat(${labels.length}, 1fr)` }, labels.map((label, i) => {
+    const cls = failed ? (i === 0 ? 'step fail' : 'step') : i < done ? 'step done' : i === active ? 'step active' : 'step';
+    const s = el('div', { class: cls }, el('i'), label);
+    if (i === active) s.style.setProperty('--p', `${progress}%`);
+    return s;
+  }));
+}
+function withdrawalView(d) {
+  const wei = BigInt(d.wei);
+  const ranAt = d.out ? Number(d.out.timestamp) * 1000 : null;
+  let badge, done = 0, active = -1, progress = 0, note, action = null;
+  if (d.failed) {
+    badge = el('span', { class: 'badge bad' }, 'Failed');
+    note = d.failed;
+  } else if (d.claimed) {
+    badge = el('span', { class: 'badge ok' }, icon('check'), 'Claimed');
+    done = 5;
+    note = `Paid out on HyperEVM to ${short(d.out?.destination || d.from)}.`;
+  } else if (d.claimable) {
+    badge = el('span', { class: 'badge ok' }, 'Ready to claim');
+    done = 4; active = 4; progress = 50;
+    note = d.claimHash ? 'Claim sent; waiting for HyperEVM.' : 'The challenge period is over. Claim it on HyperEVM; you pay the gas there.';
+    action = el('button', { class: 'btn btn-accent claim', onclick: () => (state.account ? runClaim(d) : connect()) },
+      state.account ? 'Claim on HyperEVM' : 'Connect to claim');
+  } else if (d.out && d.checkpointAt) {
+    // Its checkpoint is on HyperEVM: the challenge period is running.
+    const eta = claimEta(d);
+    badge = el('span', { class: 'badge wait' }, spinner(), 'Challenge period');
+    done = 3; active = 3;
+    progress = eta ? Math.max(4, Math.min(98, Math.round(eta.progress * 100))) : 30;
+    note = eta
+      ? `Checkpoint posted ${ago(eta.postedAt)}. Claimable on HyperEVM around ${fmtDate(eta.at)}, when its challenge period ends.`
+      : 'Checkpoint posted on HyperEVM. Claimable when its challenge period ends, about 5½ days after.';
+  } else if (d.out) {
+    // Ran on Elysium; no checkpoint covers it yet.
+    const eta = claimEta(d);
+    const t = state.timeline;
+    badge = el('span', { class: 'badge wait' }, spinner(), 'Awaiting checkpoint');
+    done = 2; active = 2;
+    progress = t ? Math.max(8, Math.min(95, Math.round(((Date.now() - ranAt) * 100) / (Number(t.cadence) * t.blockMs)))) : 30;
+    note = eta
+      ? `Left Elysium. The next checkpoint on HyperEVM is due around ${fmtDate(eta.next)} (one about every ${dur(Number(t.cadence) * t.blockMs)}); claimable around ${fmtDate(eta.at)}.`
+      : `Left Elysium. Claimable on HyperEVM around ${fmtDate(ranAt + CFG.claimDelayMs)}, once a checkpoint covers it and its challenge period ends.`;
+  } else if (d.where === 'skipped') {
+    badge = el('span', { class: 'badge bad' }, 'Skipped');
+    note = skippedNote(d.skip);
+    action = el('button', { class: 'btn claim', onclick: () => forgetDeposit(d.hash) }, 'Remove');
+  } else if (d.where === 'lost') {
+    badge = el('span', { class: 'badge bad' }, "Didn't arrive");
+    note = `This withdrawal isn't on Elysium and isn't waiting in its inbox, so it won't run, and your HYPE hasn't left Elysium. Usually that means your wallet sent it through another RPC: set its Elysium network RPC to ${CFG.walletRpc}, clear its pending activity, and withdraw again.`;
+    action = el('button', { class: 'btn claim', onclick: () => forgetDeposit(d.hash) }, 'Remove');
+  } else {
+    badge = el('span', { class: 'badge wait' }, spinner(), d.via === 'relay' ? 'In queue' : 'Confirming');
+    done = 1; active = 1; progress = 40;
+    note = d.via !== 'relay'
+      ? 'Submitted, not yet included on Elysium.'
+      : d.where === 'inbox' ? "In Elysium's inbox; runs with the next batch (about every 3h)."
+      : d.where === 'relay' ? "With the Kleos relay, which posts it into Elysium's inbox; runs with the next batch (about every 3h)."
+      : "Sent through the Kleos relay; runs with the next batch (about every 3h) once it's in Elysium's inbox.";
+  }
+  return el('div', { class: 'dep' },
+    el('div', { class: 'dep-top' },
+      el('div', { class: 'dep-amt' }, icon('hype'),
+        el('div', {}, el('span', { class: 'num', text: `${fmtHype(wei)} HYPE` }), el('small', { text: `Elysium → HyperEVM · ${usd(wei)}` }))),
+      badge),
+    stepsView(['Sent', 'On Elysium', 'Checkpoint', 'Challenge', 'Claimed'], { done, active, progress, failed: !!d.failed || d.where === 'lost' || d.where === 'skipped' }),
+    el('div', { class: 'dep-meta' },
+      el('span', { text: note }),
+      el('span', {}, `${ago(d.sentAt)} · `, d.claimHash
+        ? el('a', { href: explorerTx(d.claimHash), target: '_blank', rel: 'noopener' }, 'claim ', short(d.claimHash), icon('ext'))
+        : el('span', { class: 'mono', text: short(d.hash) }))),
+    action);
+}
+// Why Elysium skipped a withdrawal that reached its inbox, as KleosScan read it once its batch had run.
+function skippedNote(s) {
+  const when = s?.batch != null ? `When batch #${s.batch} ran` : 'When its batch ran';
+  const why = s?.reason === 'used'
+    ? `another transaction from your wallet had already used its number (nonce ${s.nonce})`
+    : s?.reason === 'order'
+      ? `an earlier transaction from your wallet hadn't gone through, so this one (nonce ${s.nonce}) came out of turn`
+      : s?.reason === 'funds'
+        ? "your wallet didn't have the HYPE for it on Elysium (usually a trade before it didn't go through, so the HYPE it would have brought never came)"
+        : "your wallet didn't have the HYPE for it on Elysium, or an earlier transaction from it hadn't gone through";
+  return `${when}, ${why}, so Elysium skipped it. Nothing left your wallet and no gas was spent: your HYPE is still on Elysium. Withdraw again.`;
+}
+function depositView(d) {
+  if (d.kind === 'withdraw') return withdrawalView(d);
+  const read = state.chain?.read;
+  const wei = BigInt(d.wei);
+  let badge, active = -1, done = 0, progress = 0, note = '';
+  if (d.failed) {
+    badge = el('span', { class: 'badge bad' }, 'Failed');
+    note = d.failed;
+  } else if (d.messageIndex == null) {
+    badge = el('span', { class: 'badge wait' }, spinner(), 'Confirming');
+    done = 1; active = 1; progress = 50;
+    note = 'Waiting for HyperEVM to confirm the transaction.';
+  } else if (d.credited || (read != null && read > BigInt(d.messageIndex))) {
+    badge = el('span', { class: 'badge ok' }, icon('check'), 'Completed');
+    done = 4;
+    note = `Message #${d.messageIndex} was picked up by the sequencer. The HYPE is at ${short(d.from)} on Elysium.`;
+  } else {
+    // The Kleos relay counts a waiting deposit straight away (a ticket that only moves HYPE, bidding above Elysium's
+    // base fee, which Elysium redeems on its own), so it already shows and trades through Kleos. Elysium itself
+    // credits it with the batch.
+    const usable = !!state.relay?.ok;
+    badge = usable
+      ? el('span', { class: 'badge ok' }, spinner(), 'Usable on Kleos')
+      : el('span', { class: 'badge wait' }, spinner(), 'In queue');
+    done = 2; active = 2;
+    const idx = BigInt(d.messageIndex);
+    const ahead = read == null ? null : idx - read;
+    if (read != null) {
+      const start = d.readAt != null ? BigInt(d.readAt) : read;
+      const total = idx + 1n - start;
+      progress = total > 0n ? Math.max(8, Math.round(Number(read - start) * 100 / Number(total))) : 8;
+    }
+    const age = Date.now() - (d.minedAt || d.sentAt);
+    note = (usable ? 'Already in your balance through the Kleos RPC, so you can trade it on Kleos now. ' : '') +
+      `Message #${d.messageIndex}${ahead == null ? '' : ` · ${ahead} ahead`} · lands on Elysium with the next sequencer batch.` +
+      (age > FORCE_INCLUDE_MS ? ' Over 24h old, so it can be force-included via SequencerInbox.forceInclusion.' : '');
+  }
+  const steps = stepsView(['Sent', 'Confirmed', 'In queue', 'On Elysium'], { done, active, progress, failed: !!d.failed });
+  return el('div', { class: 'dep' },
+    el('div', { class: 'dep-top' },
+      el('div', { class: 'dep-amt' }, icon('hype'),
+        el('div', {}, el('span', { class: 'num', text: `${fmtHype(wei)} HYPE` }), el('small', { text: `HyperEVM → Elysium · ${usd(wei)}` }))),
+      badge),
+    steps,
+    el('div', { class: 'dep-meta' },
+      el('span', { text: note }),
+      el('span', {}, `${ago(d.minedAt || d.sentAt)} · `, el('a', { href: explorerTx(d.hash), target: '_blank', rel: 'noopener' }, short(d.hash), icon('ext')))),
+  );
+}
+function renderActivity() {
+  const list = state.deposits;
+  const pending = list.filter((d) => !d.failed && !d.credited && !d.claimed && !(d.messageIndex != null && state.chain && state.chain.read > BigInt(d.messageIndex))).length;
+  const count = $('pending-count');
+  count.hidden = pending === 0;
+  count.textContent = pending;
+  const box = $('deps');
+  if (!list.length) {
+    box.replaceChildren(el('div', { class: 'empty-state' }, icon('layers'),
+      el('b', { text: 'Nothing here yet' }),
+      el('span', { text: 'Deposits and withdrawals you send from this page show up here. They are remembered in this browser only, so keep your tx hash.' })));
+    return;
+  }
+  box.replaceChildren(...list.map(depositView));
+}
+
+/* ---------- modals ---------- */
+let modalKind = null;
+let flow = null;
+function openModal(kind) {
+  modalKind = kind;
+  if (kind === 'about') renderAbout(); else if (kind === 'wallets') renderWallets(); else if (kind === 'network') renderNetwork(); else renderFlow();
+  if (!$('modal').open) $('modal').showModal();
+}
+function closeModal() { $('modal').close(); }
+$('modal').addEventListener('close', () => { modalKind = null; });
+$('modal').addEventListener('click', (e) => { if (e.target === $('modal')) closeModal(); });
+const modalHead = (title) => el('div', { class: 'dlg-head' }, el('h2', { text: title }),
+  el('button', { class: 'close', 'aria-label': 'Close', onclick: closeModal }, icon('x')));
+const row = (label, ...value) => el('div', { class: 'drow' }, el('span', { text: label }), el('span', {}, ...value));
+
+// Elysium's network details, each copyable, and one click to add them to the wallet.
+function renderNetwork() {
+  const p = elysiumParams();
+  const row = (label, value, mono) => el('div', { class: 'netrow' }, el('span', { text: label }),
+    el('span', {}, el(mono ? 'span' : 'b', { class: mono ? 'mono' : '', text: value, title: value }),
+      el('button', { class: 'close', 'aria-label': `Copy ${label.toLowerCase()}`, onclick: () => copy(value, `${label} copied`) }, icon('copy'))));
+  $('modal-body').replaceChildren(
+    modalHead('Add Elysium to your wallet'),
+    el('p', { class: 'prose', style: 'margin-bottom:12px', text: 'To see your Elysium HYPE in your wallet, and to withdraw (or trade on Kleos) on Elysium before its launch.' }),
+    el('div', { class: 'netbox' },
+      row('Network name', p.chainName), row('RPC URL', p.rpcUrls[0], true), row('Chain ID', String(CFG.childChainId), true), row('Currency symbol', 'HYPE'),
+      el('div', { class: 'netrow' }, el('span', { text: 'Block explorer' }), el('span', { class: 'sub', text: 'None yet' }))),
+    el('button', { class: 'cta', onclick: () => void addElysium() }, provider() ? 'Add to wallet' : 'Connect a wallet to add it'),
+    el('p', { class: 'hint', text: "Already have Elysium with another RPC (BOXA's, say)? Your wallet may keep that one: add the RPC URL above to it in your wallet's network settings. MetaMask lets a network have more than one RPC; Rabby lets you edit a custom network." }),
+  );
+}
+function renderWallets() {
+  const choices = walletChoices();
+  $('modal-body').replaceChildren(
+    modalHead('Connect a wallet'),
+    choices.length
+      ? el('ul', { class: 'wallets' }, choices.map((c) => el('li', {},
+        el('button', { disabled: !!connecting, onclick: () => connectWith(c) },
+          /^data:image\//.test(c.info.icon || '') ? el('img', { src: c.info.icon, alt: '' }) : el('span', { class: 'wicon' }, icon('wallet')),
+          el('span', { text: c.info.name || 'Wallet' }),
+          connecting === c.info.rdns ? el('small', { text: 'Check your wallet…' }) : null))))
+      : el('p', { class: 'prose', text: 'No browser wallet found. Install Rabby or MetaMask, then reload this page.' }),
+    el('p', { class: 'hint', text: 'Use a plain wallet (an EOA): a smart wallet is credited at a different address on Elysium.' }),
+  );
+}
+function openReview() {
+  flow = { stage: 'review', wei: amountWei(), ack: false, dir: state.dir };
+  openModal('flow');
+}
+function renderFlow() {
+  const body = $('modal-body');
+  const f = flow;
+  const w = f.dir === 'withdraw';
+  const claim = f.dir === 'claim';
+  const out = w || claim;
+  const relayed = w && withdrawRoute() === 'relay';
+  const fee = (w ? state.childGasPrice : state.gasPrice) != null ? (w ? CFG.withdrawGas : CFG.depositGas) * (w ? state.childGasPrice : state.gasPrice) : null;
+  const route = el('div', { class: 'route' },
+    el('span', { class: 'chain' }, icon(out ? 'elysium' : 'hyperevm'), out ? 'Elysium' : 'HyperEVM'), el('span', { class: 'line' }),
+    el('span', { class: 'chain' }, icon(out ? 'hyperevm' : 'elysium'), out ? 'HyperEVM' : 'Elysium'));
+  const ctl = state.control;
+  const control = !ctl ? 'Upgradeable by its keyholders' : ctl.safeHolds ? `${ctl.threshold}-of-${ctl.owners} multisig · no delay` : 'Keys moved · check first';
+  const hero = el('div', { class: 'hero' },
+    el('div', { class: 'big num', text: `${fmtHype(f.wei, 18)} HYPE` }), el('div', { class: 'sub num', text: usd(f.wei) }));
+  const split = claim ? null : f.split ?? (w ? withdrawSplit(f.wei) : depositSplit(f.wei));
+
+  if (f.stage === 'review') {
+    const confirm = el('button', { class: 'cta', disabled: !f.ack, onclick: w ? runWithdraw : runDeposit }, w ? 'Confirm withdrawal' : 'Confirm deposit');
+    const ack = el('input', { type: 'checkbox', onchange: (e) => { f.ack = e.target.checked; confirm.disabled = !f.ack; } });
+    ack.checked = f.ack;
+    body.replaceChildren(
+      modalHead(w ? 'Review withdrawal' : 'Review deposit'), hero, route,
+      el('div', { class: 'rows' },
+        row('You send', el('span', { class: 'num', text: `${fmtHype(f.wei, 18)} HYPE` })),
+        row('You receive', el('span', { class: 'num', text: split ? `${fmtHype(split.pays, w ? 18 : 6)} HYPE` : '—' }),
+          el('span', { class: 'sub', text: w ? ' on HyperEVM' : ' on Elysium, plus any unused ticket gas back' })),
+        row('Recipient', el('span', { class: 'mono', text: short(state.account) }), el('span', { class: 'sub', text: ' (you)' })),
+        row('Contract', el('span', { class: 'mono', text: short(CFG.multicall) }), el('span', { class: 'sub', text: ' Multicall3' })),
+        row('Function', el('span', { class: 'mono', text: w ? 'aggregate3Value: the fee + ArbSys.withdrawEth' : 'aggregate3Value: the fee + createRetryableTicket' })),
+        row('Bridge fee', el('span', { class: 'num', text: `${Number(w ? CFG.withdrawFeeBps : CFG.feeBps) / 100}%${split ? ` · ${fmtHype(split.fee, 18)} HYPE` : ''}` }),
+          el('span', { class: 'sub', text: ` to Kleos (${short(CFG.feeRecipient)})` })),
+        row('Network fee', el('span', { class: 'num', text: fee == null ? '—' : `~${fmtSmallHype(fee)} HYPE` })),
+        row('Arrival', ...(w
+          ? [relayed ? 'Next batch, then a claim' : 'A claim on HyperEVM', el('span', { class: 'sub', text: ' · after ~6 days' })]
+          : ['Next sequencer batch', el('span', { class: 'sub', text: ' · ~3h' })])),
+        row('Bridge control', control)),
+      ...(w && aheadOfChain(f.wei) ? [el('div', { class: 'heads-up', text: aheadOfChainNote() })] : []),
+      el('label', { class: 'risk' }, ack,
+        el('span', { text: w
+          ? 'I understand I claim this on HyperEVM myself, from Activity, after the challenge period (about 6 days).'
+          : "I understand this interface is unofficial, Elysium mainnet hasn't launched, the bridge's keyholders can change its contracts, and I may not be able to get this HYPE back." })),
+      confirm,
+      el('p', { class: 'hint', text: w
+        ? `${relayed ? `Before launch this goes through the Kleos relay, so your wallet's Elysium network has to use ${CFG.walletRpc}. ` : ''}Your wallet should be on Elysium and show a call to ${short(CFG.multicall)} (Multicall3) for exactly ${fmtHype(f.wei, 18)} HYPE. Reject anything else.`
+        : `Your wallet should show a call to ${short(CFG.multicall)} (Multicall3) for exactly ${fmtHype(f.wei, 18)} HYPE. Reject anything else.` }),
+    );
+    return;
+  }
+
+  if (f.stage === 'done') {
+    body.replaceChildren(
+      modalHead(''),
+      el('div', { class: 'success' },
+        el('div', { class: 'ring' }, icon('check')),
+        el('h3', { text: claim ? (f.landed ? 'Claimed' : 'Claim sent') : w ? (f.landed ? 'Withdrawal sent' : 'Withdrawal submitted') : 'Deposit sent' }),
+        el('p', { class: 'num', text: claim
+          ? (f.landed
+            ? `${fmtHype(f.wei, 18)} HYPE was paid out to ${short(f.d.out.destination)} on HyperEVM.`
+            : 'HyperEVM hasn\'t confirmed the claim yet. Activity keeps checking.')
+          : w
+            ? (f.landed
+              ? `${fmtHype(f.split?.pays ?? f.wei, 18)} HYPE left Elysium for HyperEVM. After the challenge period (about 6 days), claim it there from Activity.`
+              : `Elysium hasn't included this yet${f.via === 'relay' ? '; it runs with the next batch' : ''}. Activity keeps checking, and shows when it can be claimed.`)
+            : `${fmtHype(f.split?.pays ?? f.wei, 6)} HYPE lands on Elysium with the next sequencer batch.` }),
+        el('p', { class: 'mono' }, f.messageIndex != null ? `Message #${f.messageIndex} · ` : (w ? 'Elysium tx · ' : claim ? 'Claim · ' : 'Still confirming · '),
+          w ? el('span', { text: short(f.hash) }) : el('a', { class: 'link', href: explorerTx(f.hash), target: '_blank', rel: 'noopener', text: short(f.hash) }))),
+      el('div', { class: 'btn-row' },
+        el('button', { class: 'cta secondary', onclick: closeModal }, 'Done'),
+        el('button', { class: 'cta', onclick: () => { closeModal(); setView('activity'); } }, 'View activity')),
+    );
+    return;
+  }
+
+  // progress
+  const order = claim ? ['check', 'proof', 'wallet', 'mined'] : ['check', 'simulate', 'wallet', 'mined'];
+  const text = claim ? {
+    check: ["Checking Elysium's confirmed state", 'Rollup, outbox and your wallet'],
+    proof: ['Building the proof', 'From the Elysium node, then a dry run on HyperEVM'],
+    wallet: ['Confirm in your wallet', `Call to ${short(CFG.outbox)} · pays ${short(f.d.out.destination)}`],
+    mined: ['Waiting for HyperEVM', f.hash ? short(f.hash) : 'HyperEVM'],
+  } : w ? {
+    check: ['Checking Elysium', 'Chain ID, genesis and your wallet'],
+    simulate: ['Simulating the withdrawal', 'Dry run against the Elysium node'],
+    wallet: ['Confirm in your wallet', `Call to ${short(CFG.multicall)} · ${fmtHype(f.wei, 18)} HYPE`],
+    mined: ['Waiting for Elysium', f.hash ? short(f.hash) : 'Elysium'],
+  } : {
+    check: ['Re-checking the route', 'Inbox, bridge, rollup and your wallet'],
+    simulate: ['Simulating the deposit', 'Dry run against HyperEVM'],
+    wallet: ['Confirm in your wallet', `Call to ${short(CFG.inbox)} · ${fmtHype(f.wei, 18)} HYPE`],
+    mined: ['Waiting for confirmation', f.hash ? short(f.hash) : 'HyperEVM'],
+  };
+  const at = order.indexOf(f.step);
+  const list = el('ul', { class: 'plist' }, order.map((k, i) => {
+    const failed = f.error && i === at;
+    const cls = failed ? 'fail' : i < at ? 'done' : i === at ? 'active' : '';
+    const mark = el('span', { class: 'mark' }, failed ? icon('x') : i < at ? icon('check') : i === at ? spinner() : null);
+    return el('li', { class: cls }, mark, el('div', {}, el('div', { text: text[k][0] }), el('div', { class: 'sub mono', style: 'font-size:12px', text: text[k][1] })));
+  }));
+  body.replaceChildren(
+    modalHead(f.error ? (claim ? 'Not claimed' : w ? 'Withdrawal not sent' : 'Deposit not sent') : (claim ? 'Claiming' : w ? 'Withdrawing' : 'Depositing')),
+    hero, list,
+    f.error ? el('div', { class: 'err', text: f.error }) : null,
+    f.error ? el('div', { class: 'btn-row' },
+      el('button', { class: 'cta secondary', onclick: closeModal }, 'Close'),
+      el('button', { class: 'cta', onclick: () => {
+        if (claim) return runClaim(f.d);
+        flow = { stage: 'review', wei: f.wei, ack: true, dir: f.dir };
+        renderFlow();
+      } }, 'Try again')) : null,
+  );
+}
+async function runDeposit() {
+  const f = flow;
+  f.stage = 'progress'; f.step = 'check'; f.error = null;
+  renderFlow();
+  try {
+    const fresh = await readChain();
+    state.chain = fresh;
+    renderAll();
+    if (!fresh.ok) throw new Error('A route check failed just before sending. Nothing was sent.');
+    await ensureChain();
+    if (state.walletChainId !== CFG.parentChainId) throw new Error('Your wallet is not on HyperEVM (999). Nothing was sent.');
+    const code = await rpc('eth_getCode', [state.account, 'latest']);
+    if (code && code !== '0x') throw new Error('This address has contract code, so the ticket\'s refunds would go to an aliased address. Nothing was sent.');
+    // Priced from the fees right now: HyperEVM's just read, Elysium's from its node (or the 0.2 gwei floor).
+    const child = await readChild().catch(() => null);
+    const split = depositSplit(f.wei, fresh.baseFee, child?.ok ? child.baseFee : 0n);
+    if (!split) throw new Error("This amount doesn't cover the deposit ticket's costs. Nothing was sent.");
+    const tx = depositTx(state.account, f.wei, split);
+    checkDepositTx(tx, f.wei, state.account, split);
+    f.split = split;
+    f.step = 'simulate'; renderFlow();
+    await rpc('eth_estimateGas', [tx]);
+    f.step = 'wallet'; renderFlow();
+    const hash = await provider().request({ method: 'eth_sendTransaction', params: [tx] });
+    f.hash = hash;
+    addDeposit({ hash, from: state.account, wei: split.pays.toString(), sent: f.wei.toString(), fee: split.fee.toString(), sentAt: Date.now() });
+    renderAll();
+    f.step = 'mined'; renderFlow();
+    const r = await waitForReceipt(hash);
+    if (r) {
+      const parsed = await parseDepositReceipt(r);
+      updateDeposit(hash, parsed);
+      if (parsed.failed) throw new Error(parsed.failed);
+      f.messageIndex = parsed.messageIndex;
+    }
+    f.stage = 'done';
+    amountInput.value = '';
+    renderAll();
+    refreshWallet().catch(() => {});
+  } catch (e) {
+    f.error = e?.code === 4001 ? 'You rejected the request in your wallet. Nothing was sent.' : (e?.message || String(e));
+  }
+  if (flow === f && modalKind === 'flow') renderFlow();
+}
+async function runWithdraw() {
+  const f = flow;
+  f.stage = 'progress'; f.step = 'check'; f.error = null;
+  renderFlow();
+  try {
+    const child = await readChild();
+    state.child = child;
+    if (!child.ok) throw new Error('The Elysium node failed its check. Nothing was sent.');
+    if (!sequencerLive(child)) state.relay = await readRelay().catch(() => null);
+    f.via = withdrawRoute(child);
+    if (!f.via) throw new Error("Elysium isn't taking public transactions yet and the Kleos relay isn't answering, so nothing was sent.");
+    await ensureChildChain();
+    if (state.walletChainId !== Number(CFG.childChainId)) throw new Error('Your wallet is not on Elysium (99901). Nothing was sent.');
+    const code = await childRpc('eth_getCode', [CFG.multicall, 'latest']);
+    if ((await sha256Hex(code)) !== CFG.multicallSha256) throw new Error("Multicall3 on Elysium isn't the canonical contract. Nothing was sent.");
+    const split = withdrawSplit(f.wei);
+    const tx = withdrawTx(state.account, f.wei, split);
+    checkWithdrawTx(tx, f.wei, state.account, split);
+    f.split = split;
+    f.step = 'simulate'; renderFlow();
+    await childRpc('eth_estimateGas', [tx]);
+    f.step = 'wallet'; renderFlow();
+    const hash = await provider().request({ method: 'eth_sendTransaction', params: [tx] });
+    f.hash = hash;
+    // What arrives on HyperEVM is what's withdrawn, after the fee; the claim pays out that.
+    addDeposit({ hash, from: state.account, wei: split.pays.toString(), sent: f.wei.toString(), fee: split.fee.toString(), sentAt: Date.now(), kind: 'withdraw', via: f.via });
+    renderAll();
+    f.step = 'mined'; renderFlow();
+    // Through the relay the receipt comes with the next batch, hours away: Activity picks it up then.
+    const r = await waitForReceipt(hash, f.via === 'relay' ? 10000 : 120000, childRpc);
+    if (r && r.status !== '0x1') throw new Error('The withdrawal reverted on Elysium.');
+    if (r) updateDeposit(hash, { confirmed: true, out: parseWithdrawal(r) });
+    // No receipt yet means Elysium hasn't included it: say so rather than calling it sent.
+    f.landed = !!r;
+    f.stage = 'done';
+    amountInput.value = '';
+    renderAll();
+    refreshWallet().catch(() => {});
+  } catch (e) {
+    const msg = e?.message || String(e);
+    f.error = e?.code === 4001 ? 'You rejected the request in your wallet. Nothing was sent.'
+      // A wallet whose Elysium network points elsewhere (the node itself, or another relay) can't send before launch.
+      : f.via === 'relay' && /not supported|publishing|method not found|not available|only kleos/i.test(msg)
+        ? `${msg} Before launch, withdrawals only go through the Kleos relay: set your wallet's Elysium network RPC to ${CFG.walletRpc} and try again.`
+        : msg;
+  }
+  if (flow === f && modalKind === 'flow') renderFlow();
+}
+// Pays out a withdrawal on HyperEVM once Elysium's confirmed state covers it. Anyone may send this; the HYPE goes to
+// the address the withdrawal named, and the wallet sending it pays the gas.
+async function runClaim(d) {
+  const f = flow = { stage: 'progress', dir: 'claim', wei: BigInt(d.wei), d, step: 'check', error: null };
+  openModal('flow');
+  try {
+    await ensureChain();
+    if (state.walletChainId !== CFG.parentChainId) throw new Error('Your wallet is not on HyperEVM (999). Nothing was sent.');
+    const fresh = await readChain();
+    if (!fresh.ok) throw new Error('A route check failed, so nothing was sent. Open Route details to see which one.');
+    const conf = await readConfirmed();
+    state.confirmed = conf;
+    if (BigInt(d.out.position) >= conf.sendCount) throw new Error("Elysium's confirmed state doesn't include this withdrawal yet. Try again after its challenge period.");
+    if (await isSpent(d.out.position)) {
+      updateDeposit(d.hash, { claimed: true });
+      renderAll();
+      throw new Error('This withdrawal has already been claimed.');
+    }
+    f.step = 'proof'; renderFlow();
+    const proof = await outboxProof(d.out, conf);
+    const tx = { from: state.account, to: CFG.outbox, data: encodeExecute(proof, d.out) };
+    await rpc('eth_estimateGas', [tx]);
+    f.step = 'wallet'; renderFlow();
+    const hash = await provider().request({ method: 'eth_sendTransaction', params: [tx] });
+    f.hash = hash;
+    updateDeposit(d.hash, { claimHash: hash });
+    renderAll();
+    f.step = 'mined'; renderFlow();
+    const r = await waitForReceipt(hash);
+    if (r && r.status !== '0x1') throw new Error('The claim reverted on HyperEVM.');
+    if (r) updateDeposit(d.hash, { claimed: true });
+    f.landed = !!r;
+    f.stage = 'done';
+    renderAll();
+    refreshWallet().catch(() => {});
+  } catch (e) {
+    f.error = e?.code === 4001 ? 'You rejected the request in your wallet. Nothing was sent.' : (e?.message || String(e));
+  }
+  if (flow === f && modalKind === 'flow') renderFlow();
+}
+
+// When a withdrawal sent now could be claimed: it runs on Elysium (before launch, with a batch within ~3 hours), the
+// first checkpoint after that covers it, then that checkpoint's challenge period.
+const BATCH_WAIT_MS = 3 * 3600e3;
+function newWithdrawalEta() {
+  const t = state.timeline;
+  if (!t) return null;
+  const runsBy = Date.now() + (withdrawRoute() === 'relay' ? BATCH_WAIT_MS : 60e3);
+  const runsAtBlock = t.head + BigInt(Math.ceil((runsBy - Date.now()) / t.blockMs));
+  let next = t.latest.createdAt + t.cadence;
+  while (next < runsAtBlock) next += t.cadence;
+  return Date.now() + Number(next + t.period - t.head) * t.blockMs;
+}
+// Withdraw only: what happens between sending and claiming, with live timings from HyperEVM.
+function renderTimeline() {
+  const box = $('view-timeline');
+  const show = !$('view-bridge').hidden && withdrawing();
+  box.hidden = !show;
+  if (!show) return;
+  const t = state.timeline;
+  const relayed = withdrawRoute() === 'relay';
+  const eta = newWithdrawalEta();
+  const cadence = t ? Number(t.cadence) * t.blockMs : null;
+  const period = t ? Number(t.period) * t.blockMs : null;
+  const steps = [
+    ['Runs on Elysium', relayed ? 'within ~3h' : 'seconds',
+      relayed ? 'Before its launch, Elysium runs the inbox in batches, about every 3 hours.' : 'Elysium includes it as soon as you send it.'],
+    ['Checkpoint posted to HyperEVM', t ? `every ~${dur(cadence)}` : 'every several hours',
+      t ? `Elysium's validator posts its state to HyperEVM about every ${dur(cadence)}. The last checkpoint went up ${dur(checkpointAge(t))} ago.` : "Elysium's validator posts its state to HyperEVM regularly."],
+    ['Challenge period', t ? `~${dur(period)}` : '~5.5 days',
+      t ? `HyperEVM holds each checkpoint for ${Number(t.period).toLocaleString('en-US')} blocks before it's final. Nobody can shorten it, Kleos included.` : "HyperEVM holds each checkpoint before it's final. Nobody can shorten it."],
+    ['Claim on HyperEVM', 'one transaction', 'From Activity, with a proof this page builds. The HYPE goes to the address that withdrew; whoever claims pays the gas.'],
+  ];
+  box.replaceChildren(
+    el('div', { class: 'timeline-head' }, el('h2', { text: 'When can I claim?' }), el('b', { class: 'num', text: eta ? dur(eta - Date.now()) : '~6 days' })),
+    el('p', { class: 'timeline-sub', text: eta ? `Sent now, it should be claimable around ${fmtDate(eta)}.` : 'Reading the latest checkpoint on HyperEVM…' }),
+    el('ol', { class: 'timeline' }, steps.map(([title, time, body], i) =>
+      el('li', {}, el('span', { class: 'n', text: String(i + 1) }),
+        el('div', {}, el('div', { class: 't' }, title, el('em', { text: time })), el('p', { text: body }))))),
+  );
+}
+
+// Who can move the HYPE in the bridge, read live from HyperEVM.
+function controlSection() {
+  const g = state.control;
+  const link = (a) => el('a', { class: 'link mono', href: explorerAddr(a), target: '_blank', rel: 'noopener', text: short(a) });
+  const item = (ok, ...kids) => el('li', {}, icon(ok ? 'info' : 'alert', ok ? '' : 'n'), el('span', {}, ...kids));
+  return el('div', { class: 'section' },
+    el('h3', { text: 'Who controls the bridge' }),
+    el('p', { class: 'prose', style: 'margin-bottom:8px', text: "Every Elysium app (Kleos, BOXA, ElysPump) uses this same bridge. The HYPE sits in Elysium's Bridge contract; Kleos never holds it, and this page only calls the canonical Inbox, ArbSys and Outbox." }),
+    g ? el('ul', { class: 'checks' },
+      g.safeHolds
+        ? item(true, 'Upgrade keys: the Safe ', link(CFG.upgradeSafe), ` · any ${g.threshold} of its ${g.owners} signers, with no delay`)
+        : item(false, `Upgrade keys: no longer the Safe ${short(CFG.upgradeSafe)} this page was checked against on ${CFG.controlCheckedOn}. Find out who holds them before depositing.`),
+      item(true, g.whitelist
+        ? `${g.validators === 1 ? 'One approved validator posts' : `${g.validators} approved validators post`} Elysium's state; no one else may challenge it`
+        : 'Anyone may post and challenge Elysium\'s state (validator allowlist off)'))
+      : el('p', { class: 'prose', text: 'Reading HyperEVM…' }));
+}
+function renderAbout() {
+  const c = state.chain;
+  const body = $('modal-body');
+  const addrRow = (label, a) => el('div', { class: 'addr' }, el('span', { text: label }),
+    el('a', { class: 'mono', href: explorerAddr(a), target: '_blank', rel: 'noopener' }, short(a), icon('ext')));
+  body.replaceChildren(
+    modalHead('Route details'),
+    el('div', { class: 'section' },
+      el('h3', { text: 'On-chain checks' }),
+      c ? el('ul', { class: 'checks' }, c.checks.map(([label, ok]) =>
+        el('li', {}, icon(ok ? 'check' : 'x', ok ? 'y' : 'n'), label)))
+        : el('p', { class: 'prose', text: state.chainError ? `Couldn't read HyperEVM: ${state.chainError}` : 'Reading HyperEVM…' })),
+    c ? el('div', { class: 'section stats' },
+      el('div', { class: 'stat' }, el('b', { class: 'num', text: fmtHype(c.bridgeBal, 0) }), el('span', { text: `HYPE in bridge · ${usd(c.bridgeBal)}` })),
+      el('div', { class: 'stat' }, el('b', { class: 'num', text: c.batches.toString() }), el('span', { text: 'batches posted' })),
+      el('div', { class: 'stat' }, el('b', { class: 'num', text: (c.delayed - c.read).toString() }), el('span', { text: 'messages queued' }))) : null,
+    el('div', { class: 'section' },
+      el('h3', { text: `Elysium RPC${childNode().thirdParty ? ' · third-party' : ''}` }),
+      el('p', { class: 'prose', style: 'margin-bottom:8px' },
+        'Elysium balances are read from ', el('span', { class: 'mono', text: childNode().url.replace(/^https:\/\/|\/$/g, '') }),
+        `, ${childNode().owner}, not Kinetiq, and only while it passes these checks. It sees your address when you're connected. The page tries ${CFG.childRpcs.map((n) => n.name).join(', then ')}, and uses the first that answers and passes. Until Elysium's launch, a withdrawal goes through the Kleos relay at ${relayUrl().replace(/^https:\/\/|\/$/g, '')}, which posts your signed transaction into Elysium's inbox: it can delay or drop one, but not change it.`),
+      state.child?.checks ? el('ul', { class: 'checks' },
+        state.child.checks.map(([label, ok]) => el('li', {}, icon(ok ? 'check' : 'x', ok ? 'y' : 'n'), label)),
+        el('li', {}, icon('clock'), `Latest block #${state.child.block} · ${ago(state.child.blockTime)} (moves when a batch lands)`))
+        : el('p', { class: 'prose', text: state.child?.error ? `Couldn't reach it: ${state.child.error}` : 'Checking…' })),
+    controlSection(),
+    el('div', { class: 'section' },
+      el('h3', { text: 'Risks' }),
+      el('div', { class: 'prose' }, el('ul', {},
+        el('li', { text: "Kinetiq hasn't published mainnet addresses. These match Conduit's elysium-mainnet config (Conduit runs Elysium's stack, and its elysium-testnet config matches Kinetiq's published testnet). That's strong evidence, not an announcement, and Kinetiq could re-genesis before Nov 9." }),
+        el('li', { text: 'Whoever holds the upgrade keys above controls every deposit: they can replace the bridge contracts at once, and nothing on this page can stop that.' }),
+        el('li', { text: "Transaction data is kept by Conduit's data service, not posted on HyperEVM in full. If it went away, no one could rebuild Elysium's state from HyperEVM alone." }),
+        el('li', { text: 'A withdrawal can be claimed on HyperEVM only after the challenge period, about 6 days.' }),
+        el('li', { text: 'Use a plain burner wallet and only send what you can afford to lose.' })))),
+    el('div', { class: 'section' },
+      el('h3', { text: 'Contracts · HyperEVM' }),
+      addrRow('Inbox', CFG.inbox), addrRow('Bridge', CFG.bridge), addrRow('Outbox', CFG.outbox), addrRow('Sequencer inbox', CFG.sequencerInbox), addrRow('Rollup · chain 99901', CFG.rollup),
+      el('p', { class: 'prose', style: 'margin-top:8px' }, 'Source: ', el('a', { class: 'link', href: CFG.conduitConfig, target: '_blank', rel: 'noopener', text: "Conduit's elysium-mainnet config" }), ', checked 2026-10-22.')),
+    el('div', { class: 'section', style: 'margin-bottom:0' },
+      el('h3', { text: 'How it works' }),
+      el('p', { class: 'prose', text: 'A deposit is one transaction through Multicall3: 1% goes to the Kleos platform wallet, and the rest goes into Inbox.createRetryableTicket as a ticket that pays your own address on Elysium (Elysium redeems it automatically and refunds the unused gas to you). Both happen or neither does. The inbox queues the ticket on HyperEVM, and the Elysium sequencer picks up queued messages in each batch (about every 3 hours so far). Once the sequencer’s read counter passes your message number, your HYPE has been credited on Elysium. If the sequencer skips a message for 24 hours, anyone can force it in through SequencerInbox.forceInclusion.' }),
+      el('p', { class: 'prose', style: 'margin-top:8px', text: 'A withdrawal is one transaction on Elysium through Multicall3: 2% goes to the Kleos platform wallet, and ArbSys.withdrawEth() burns the rest there and records a withdrawal to your own address. Both happen or neither does. Once the validator’s assertion covering it is confirmed (its challenge period is 483,840 HyperEVM blocks, about 5½ days), Outbox.executeTransaction() on HyperEVM pays it out against a Merkle proof from Elysium’s NodeInterface. Activity builds that proof and sends the claim.' })),
+  );
+}
+
+/* ---------- views & wiring ---------- */
+// Deposit and Withdraw are the same card, each way; Activity is the list.
+function setView(v) {
+  if (v === 'deposit' || v === 'withdraw') {
+    if (state.dir !== v) {
+      state.dir = v;
+      amountInput.value = '';
+    }
+    v = 'bridge';
+  }
+  const tab = v === 'bridge' ? state.dir : v;
+  for (const t of document.querySelectorAll('.tab')) t.classList.toggle('active', t.dataset.view === tab);
+  $('view-bridge').hidden = v !== 'bridge';
+  $('view-activity').hidden = v !== 'activity';
+  renderAll();
+}
+for (const t of document.querySelectorAll('.tab')) t.addEventListener('click', () => setView(t.dataset.view));
+for (const c of document.querySelectorAll('.chip')) c.addEventListener('click', () => setPct(Number(c.dataset.pct)));
+$('flip').addEventListener('click', () => setView(withdrawing() ? 'deposit' : 'withdraw'));
+amountInput.addEventListener('input', () => {
+  const clean = sanitizeAmount(amountInput.value);
+  if (clean !== amountInput.value) amountInput.value = clean;
+  renderAll();
+});
+amountInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') ctaState().run?.(); });
+$('status').addEventListener('click', () => openModal('about'));
+$('add-network').addEventListener('click', () => openModal('network'));
+$('open-risks').addEventListener('click', () => openModal('about'));
+$('track').addEventListener('click', trackHash);
+$('track-hash').addEventListener('keydown', (e) => { if (e.key === 'Enter') trackHash(); });
+$('theme').addEventListener('click', () => {
+  const next = $('theme').dataset.current === 'dark' ? 'light' : 'dark';
+  document.documentElement.dataset.theme = next;
+  store('ely-theme', next);
+  renderTheme();
+});
+document.addEventListener('click', (e) => { if (!$('menu').hidden && !$('menu').contains(e.target)) closeMenu(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeMenu(); });
+matchMedia('(prefers-color-scheme: light)').addEventListener('change', renderTheme);
+const frames = [window];
+try { if (window.parent && window.parent !== window && window.parent.document) frames.push(window.parent); } catch {}
+for (const frame of frames) {
+  listenForWallets(frame);
+  try { frame.addEventListener('ethereum#initialized', () => { autoConnect(); renderAll(); }, { once: true }); } catch {}
+}
+// MetaMask on a phone often appears a moment after this frame loads, without announcing.
+let walletTries = 0;
+const waitForWallet = setInterval(() => {
+  walletTries += 1;
+  if (walletChoices().length) { clearInterval(waitForWallet); autoConnect(); renderAll(); }
+  else if (walletTries > 40) clearInterval(waitForWallet);
+}, 250);
+
+async function tick() {
+  const [chain, price, gas, child, relay, control] = await Promise.allSettled([readChain(), fetchPrice(), rpc('eth_gasPrice'), readChild(), readRelay(), readControl()]);
+  // The checkpoint timeline reads through the Elysium node too, so it waits for the node check.
+  if (child.status === 'fulfilled' && child.value.ok) {
+    state.child = child.value;
+    state.timeline = await readTimeline().catch(() => state.timeline);
+  }
+  state.relay = relay.status === 'fulfilled' ? relay.value : null;
+  if (control.status === 'fulfilled') state.control = control.value;
+  if (chain.status === 'fulfilled') { state.chain = chain.value; state.chainError = null; }
+  else state.chainError = chain.reason?.message || 'RPC error';
+  if (price.status === 'fulfilled') state.price = price.value;
+  if (gas.status === 'fulfilled') state.gasPrice = BigInt(gas.value);
+  state.child = child.status === 'fulfilled' ? child.value : { ok: false, error: child.reason?.message || 'RPC error' };
+  if (state.child.ok) state.childGasPrice = state.child.gasPrice;
+  if (!state.child.ok) state.l2Balance = null;
+  if (state.account) refreshWallet().catch(() => {});
+  await Promise.all([refreshDeposits().catch(() => {}), refreshVolume().catch(() => {})]);
+  renderAll();
+}
+
+const savedTheme = recall('ely-theme');
+if (savedTheme === 'light' || savedTheme === 'dark') document.documentElement.dataset.theme = savedTheme;
+state.deposits = loadDeposits();
+renderAll();
+tick();
+setInterval(tick, CFG.pollMs);
+</script>
+</body>
+</html>

@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-EIAPxkjE.js";var t=e();function n(){return(0,t.jsx)(`iframe`,{title:`Elysium Bridge`,src:`/elysium-bridge.html?embed=1`,className:`h-full w-full border-0 bg-[#0a0d11]`})}export{n as component};

@@ -1,0 +1,1 @@
+import{Pt as e}from"./ui-Beq8-tkJ.js";var t=e(`chevron-right`,[[`path`,{d:`m9 18 6-6-6-6`,key:`mthhwq`}]]);export{t};

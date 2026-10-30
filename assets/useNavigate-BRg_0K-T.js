@@ -1,0 +1,1 @@
+import{i as e}from"./jsx-runtime-EIAPxkjE.js";import{Rt as t,en as n}from"./ui-Beq8-tkJ.js";var r=e(n(),1);function i(e){let n=t();return r.useCallback(t=>n.navigate({...t,from:t.from??e?.from}),[e?.from,n])}export{i as t};
